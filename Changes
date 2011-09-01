@@ -1,5 +1,7 @@
 {{$NEXT}}
 
+    No interface change.  Just an extra log message when releasing.
+
 0.002     2011-09-01 15:13:43 America/Los_Angeles
 
     Initial release.
