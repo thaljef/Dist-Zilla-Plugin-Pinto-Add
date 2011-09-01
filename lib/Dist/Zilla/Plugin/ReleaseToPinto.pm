@@ -62,12 +62,14 @@ sub release {
     my $pinto_class = $self->load_pinto();
     my $pinto       = $pinto_class->new( repos => $self->repos() );
 
+    $self->log("Releasing $archive to $repos");
+
     $pinto->new_action_batch();
     $pinto->add_action('Add', author => $self->author(), dist_file => $archive);
     my $result = $pinto->run_actions();
 
     if ($result->is_success()) {
-        $self->log("Added $archive to $repos");
+        $self->log("Added $archive ok");
         return 1;
     }
     else {
