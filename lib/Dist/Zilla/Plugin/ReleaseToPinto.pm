@@ -21,20 +21,20 @@ with qw(Dist::Zilla::Role::Releaser);
 
 #------------------------------------------------------------------------------
 
-has 'repos' => (
+has repos => (
     is        => 'ro',
     isa       =>  Str,
     required  => 1,
 );
 
-has 'author' => (
+has author => (
     is       => 'ro',
     isa      => AuthorID,
     builder  => '_build_author',
     lazy     => 1,
 );
 
-has 'is_remote' => (
+has is_remote => (
     is       => 'ro',
     isa      => Bool,
     init_arg => undef,
@@ -121,64 +121,53 @@ sub get_username {
 
 1;
 
-
 __END__
+
 =pod
-
-=head1 NAME
-
-Dist::Zilla::Plugin::Inject - Inject into a CPAN::Mini mirror
-
-=head1 VERSION
-
-version 0.001
 
 =head1 SYNOPSIS
 
-  # in your dist.ini
-  [Inject]
-  author_id = EXAMPLE
+  # In your dist.ini
+  [ReleaseToPinto]
+  repos  = http://pinto.my-company.com  ; required
+  author = YOU                          ; optional. defaults to username
 
-  # injection is triggered at the release stage
+  # Then run the release command
   dzil release
 
 =head1 DESCRIPTION
 
-C<Dist::Zilla::Plugin::Inject> is a release-stage plugin that will inject your distribution into a local or remote L<CPAN::Mini> mirror.
+C<Dist::Zilla::Plugin::ReleaseToPinto> is a release-stage plugin that
+will ship your distribution to a local or remote L<Pinto> repository.
 
 =head1 CONFIGURATION
 
-=head2 Author ID
+The following parameters can be set in the F<dist.ini> file for your
+distribution:
 
-The only mandatory setting that C<Dist::Zilla::Plugin::Inject> requires is the author id that will be used when injecting the module (C<author_id>).
+=over 4
 
-=head2 Injecting into a local repository
+=item repos = REPOSITORY
 
-C<Dist::Zilla::Plugin::Inject> uses L<CPAN::Mini::Inject> to inject your distribution into a local L<CPAN::Mini> mirror. Thus, you need to have L<CPAN::Mini::Inject> configured on your machine first. L<CPAN::Mini::Inject> looks for its configuration file in a number of predefined locations (see its docs for details), or you can specify an explicit location via the C<config_file> setting in your C<dist.ini>, e.g.:
+This identifies the Pinto repository you want to release to.  If
+C<REPOSITORY> looks like a URL (i.e. starts with "http://") then your
+distribution will be shipped with L<Pinto::Remote>.  Otherwise, the
+C<REPOSITORY> is assumed to be a path to a local repository directory.
+In that case, your distribution will be shipped with L<Pinto>.
 
-  [Inject]
-  author_id = EXAMPLE
-  config_file = /home/example/.mcpani
+B<NOTE:> You'll need to install L<Pinto>, or L<Pinto::Remote>, or
+both, depending on what kind of repositories you're going to release
+to.  L<Dist::Zilla::Plugin::ReleaseToPinto> does not explicitly depend
+on either of these modules, so you can decide which one you want
+without being forced to have a bunch of other modules.
 
-=head2 Injecting into a remote repository
+=item author = NAME
 
-If you supply a C<remote_server> setting in your C<dist.ini>, C<Dist::Zilla::Plugin::Inject> will try to inject your distribution into a remote mirror via L<CPAN::Mini::Inject::Remote>. A configured L<CPAN::Mini::Inject::Server> must respond to the address specified in C<remote_server>, e.g.:
+This specifies your identity as a module author.  It must be
+alphanumeric characters (no spaces) and will be forced to UPPERCASE.
+If you do not specify one, it defaults to either your PAUSE ID (if you
+have one configured elsewhere) or your current username.
 
-  [Inject]
-  author_id = EXAMPLE
-  remote_server = http://mcpani.example.com/
-
-=for stopwords Shangov
-
-=head1 AUTHOR
-
-Peter Shangov <pshangov@yahoo.com>
-
-=head1 COPYRIGHT AND LICENSE
-
-This software is copyright (c) 2010 by Peter Shangov.
-
-This is free software; you can redistribute it and/or modify it under
-the same terms as the Perl 5 programming language system itself.
+=back
 
 =cut
