@@ -4,6 +4,8 @@ package Dist::Zilla::Plugin::ReleaseToPinto;
 
 use Moose;
 
+use English qw(-no_match_vars);
+
 use MooseX::Types::Moose qw(Str Bool);
 use Pinto::Types qw(AuthorID);
 
@@ -42,6 +44,17 @@ has 'is_remote' => (
 
 #------------------------------------------------------------------------------
 
+sub _build_author {
+    my ($self) = @_;
+
+    my $author = $self->get_pause_id() || $self->get_username()
+       or $self->fatal('Unable to determine your author ID');
+
+    return $author;
+}
+
+#------------------------------------------------------------------------------
+
 sub release {
     my ($self, $archive) = @_;
 
@@ -76,6 +89,32 @@ sub load_pinto {
     }
 
     return $pinto_class;
+}
+
+#------------------------------------------------------------------------------
+
+sub get_pause_id {
+    my ($self) = @_;
+    return;
+}
+
+
+#------------------------------------------------------------------------------
+
+sub get_username {
+    my ($self) = @_;
+
+    # Look at typical environment variables
+    for my $var ( qw(USERNAME USER LOGNAME) ) {
+        return uc $ENV{$var} if $ENV{$var};
+    }
+
+    # Try using pwent.  Probably only works on *nix
+    if (my $name = getpwuid($REAL_USER_ID)) {
+        return uc $name;
+    }
+
+    return;
 }
 
 #------------------------------------------------------------------------------
