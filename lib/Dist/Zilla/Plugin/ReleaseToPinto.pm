@@ -63,7 +63,7 @@ sub release {
     my $pinto       = $pinto_class->new( repos => $self->repos() );
 
     $pinto->new_action_batch();
-    $pinto->add_action('Add', author => $self->author(), dist => $archive);
+    $pinto->add_action('Add', author => $self->author(), dist_file => $archive);
     my $result = $pinto->run_actions();
 
     if ($result->is_success()) {
