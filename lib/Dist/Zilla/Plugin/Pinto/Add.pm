@@ -48,7 +48,7 @@ sub _build_author {
     my ($self) = @_;
 
     my $author = $self->get_pause_id() || $self->get_username()
-       or $self->fatal('Unable to determine your author ID');
+       or $self->log_fatal('Unable to determine your author ID');
 
     return $author;
 }
