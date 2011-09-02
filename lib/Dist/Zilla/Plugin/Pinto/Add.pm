@@ -1,6 +1,6 @@
-package Dist::Zilla::Plugin::ReleaseToPinto;
+package Dist::Zilla::Plugin::Pinto::Add;
 
-# ABSTRACT: Release your dist to a Pinto repository
+# ABSTRACT: Add your dist to a Pinto repository
 
 use Moose;
 
@@ -130,7 +130,7 @@ __END__
 =head1 SYNOPSIS
 
   # In your dist.ini
-  [ReleaseToPinto]
+  [Pinto::Add]
   repos  = http://pinto.my-company.com  ; required
   author = YOU                          ; optional. defaults to username
 
@@ -139,8 +139,8 @@ __END__
 
 =head1 DESCRIPTION
 
-C<Dist::Zilla::Plugin::ReleaseToPinto> is a release-stage plugin that
-will ship your distribution to a local or remote L<Pinto> repository.
+C<Dist::Zilla::Plugin::Pinto::Add> is a release-stage plugin that
+will add your distribution to a local or remote L<Pinto> repository.
 
 =head1 CONFIGURATION
 
@@ -159,7 +159,7 @@ In that case, your distribution will be shipped with L<Pinto>.
 
 B<NOTE:> You'll need to install L<Pinto>, or L<Pinto::Remote>, or
 both, depending on what kind of repositories you're going to release
-to.  L<Dist::Zilla::Plugin::ReleaseToPinto> does not explicitly depend
+to.  L<Dist::Zilla::Plugin::Pinto::Add> does not explicitly depend
 on either of these modules, so you can decide which one you want
 without being forced to have a bunch of other modules.
 
