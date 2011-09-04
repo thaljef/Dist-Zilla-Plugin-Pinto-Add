@@ -66,10 +66,10 @@ sub _build_pinto {
     my $type  = $repos =~ m{^ http:// }mx ? 'remote'        : 'local';
     my $pinto_class = $type eq 'remote'   ? 'Pinto::Remote' : 'Pinto';
 
-    $self->log_fatal("You must install $pinto_class to release to a $type repository")
+    $self->log_fatal("uou must install $pinto_class to release to a $type repository")
       if not eval { Class::Load::load_class($pinto_class); 1 };
 
-    return $pinto_class->new(repos => $repos);
+    return $pinto_class->new(repos => $repos, quiet => 1);
 }
 
 #------------------------------------------------------------------------------
@@ -77,10 +77,7 @@ sub _build_pinto {
 sub release {
     my ($self, $archive) = @_;
 
-    $self->_ping();
-    $self->_release($archive);
-
-    return 1;
+    return $self->_ping() && $self->_release($archive);
 }
 
 #------------------------------------------------------------------------------
@@ -88,18 +85,20 @@ sub release {
 sub _ping {
     my ($self) = @_;
 
-    my $repos = $self->repos();
-    $self->log("Checking if $repos is available");
-
     my $pinto = $self->pinto();
-    $pinto->new_action_batch();
+    my $repos = $pinto->config->repos();
+    $self->log("checking if repository at $repos is available");
+
+    $pinto->new_action_batch(noinit => 1);
     $pinto->add_action('Nop');
     my $result = $pinto->run_actions();
-    return if $result->is_success();
+    return 1 if $result->is_success();
 
-    my $msg = "$repos is not available.  Abort the rest of the release?";
-    my $abort  = $self->zila->chrome->prompt_yn($msg, {default => 'Y'});
-    $self->log_fatal('Giving up') if $abort;
+    my $msg = "repository at $repos is not available.  Abort the rest of the release?";
+    my $abort  = $self->zilla->chrome->prompt_yn($msg, {default => 'Y'});
+    $self->log_fatal('Aborting') if $abort;
+
+    return 0;
 }
 
 #------------------------------------------------------------------------------
@@ -107,20 +106,20 @@ sub _ping {
 sub _release {
     my ($self, $archive) = @_;
 
-    my $repos = $self->repos();
-    $self->log("Releasing $archive to $repos");
-
     my $pinto = $self->pinto();
+    my $repos = $pinto->config->repos();
+    $self->log("adding $archive to repository at $repos");
+
     $pinto->new_action_batch();
     $pinto->add_action('Add', author => $self->author(), dist_file => $archive);
     my $result = $pinto->run_actions();
 
     if ($result->is_success()) {
-        $self->log("Added $archive ok");
+        $self->log("added $archive ok");
         return 1;
     }
     else {
-        $self->log_fatal("Failed to add $archive: " . $result->to_string() );
+        $self->log_fatal("failed to add $archive: " . $result->to_string() );
         return 0;
     }
 }
@@ -177,7 +176,7 @@ C<Dist::Zilla::Plugin::Pinto::Add> is a release-stage plugin that
 will add your distribution to a local or remote L<Pinto> repository.
 
 B<IMPORTANT:> You'll need to install L<Pinto>, or L<Pinto::Remote>, or
-both, depending on wheter you're going to release to a local or remote
+both, depending on whether you're going to release to a local or remote
 repository.  L<Dist::Zilla::Plugin::Pinto::Add> does not explicitly
 depend on either of these modules, so you can decide which one you
 want without being forced to have a bunch of other modules.
