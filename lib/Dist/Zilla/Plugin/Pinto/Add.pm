@@ -89,7 +89,7 @@ sub _ping {
     my $repos = $pinto->config->repos();
     $self->log("checking if repository at $repos is available");
 
-    $pinto->new_action_batch(noinit => 1);
+    $pinto->new_batch(noinit => 1);
     $pinto->add_action('Nop');
     my $result = $pinto->run_actions();
     return 1 if $result->is_success();
@@ -110,8 +110,8 @@ sub _release {
     my $repos = $pinto->config->repos();
     $self->log("adding $archive to repository at $repos");
 
-    $pinto->new_action_batch();
-    $pinto->add_action('Add', author => $self->author(), dist_file => $archive);
+    $pinto->new_batch();
+    $pinto->add_action('Add', author => $self->author(), archive => $archive);
     my $result = $pinto->run_actions();
 
     if ($result->is_success()) {
@@ -179,7 +179,8 @@ B<IMPORTANT:> You'll need to install L<Pinto>, or L<Pinto::Remote>, or
 both, depending on whether you're going to release to a local or remote
 repository.  L<Dist::Zilla::Plugin::Pinto::Add> does not explicitly
 depend on either of these modules, so you can decide which one you
-want without being forced to have a bunch of other modules.
+want without being forced to have a bunch of other modules that you
+won't use.
 
 Before releasing, L<Dist::Zilla::Plugin::Pinto::Add> will check if the
 repository is available.  If not, you'll be prompted whether to abort
