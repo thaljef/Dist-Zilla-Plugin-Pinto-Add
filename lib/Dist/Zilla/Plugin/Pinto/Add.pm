@@ -64,12 +64,14 @@ sub _build_pinto {
 
     my $repos = $self->repos();
     my $type  = $repos =~ m{^ http:// }mx ? 'remote'        : 'local';
-    my $pinto_class = $type eq 'remote'   ? 'Pinto::Remote' : 'Pinto';
+    my $class = $type eq 'remote'         ? 'Pinto::Remote' : 'Pinto';
+    my $version = $self->VERSION();
+    my $options = { -version => $version };
 
-    $self->log_fatal("uou must install $pinto_class to release to a $type repository")
-      if not eval { Class::Load::load_class($pinto_class); 1 };
+    $self->log_fatal("You must install $class-$version to release to a $type repository: $@")
+        if not eval { Class::Load::load_class($class, $options); 1 };
 
-    return $pinto_class->new(repos => $repos, quiet => 1);
+    return $class->new(repos => $repos, quiet => 1);
 }
 
 #------------------------------------------------------------------------------
