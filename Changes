@@ -2,7 +2,10 @@
 
     No new functionality, but now matches the API of the current
     versions of Pinto and Pinto::Remote.  So you must have either
-    Pinto >= 0.027 or Pinto::Rmote >= 0.027.
+    Pinto >= 0.028 or Pinto::Rmote >= 0.028.
+
+    The version number for D::Z::P::Pinto::Add has been increased
+    to correspond to the minimum Pinto version that is required.
 
 0.006     2011-09-03 23:32:20 America/Los_Angeles
 
