@@ -1,5 +1,7 @@
 {{$NEXT}}
 
+0.028     2011-12-12 00:55:13 America/Los_Angeles
+
     No new functionality, but now matches the API of the current
     versions of Pinto and Pinto::Remote.  So you must have either
     Pinto >= 0.028 or Pinto::Rmote >= 0.028.
