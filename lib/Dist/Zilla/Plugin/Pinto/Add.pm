@@ -87,8 +87,9 @@ sub release {
 sub _ping {
     my ($self) = @_;
 
-    my $pinto = $self->pinto();
-    my $repos = $pinto->config->repos();
+    my $pinto  = $self->pinto();
+    my $config = $pinto->config();
+    my $repos  = $config->isa( 'Pinto::Remote::Config' ) ? $config->repos : $config->root_dir;
     $self->log("checking if repository at $repos is available");
 
     $pinto->new_batch(noinit => 1);
@@ -108,8 +109,9 @@ sub _ping {
 sub _release {
     my ($self, $archive) = @_;
 
-    my $pinto = $self->pinto();
-    my $repos = $pinto->config->repos();
+    my $pinto  = $self->pinto();
+    my $config = $pinto->config();
+    my $repos  = $config->isa( 'Pinto::Remote::Config' ) ? $config->repos : $config->root_dir;
     $self->log("adding $archive to repository at $repos");
 
     $pinto->new_batch();
