@@ -7,7 +7,7 @@ use Moose::Util::TypeConstraints;
 
 use English qw(-no_match_vars);
 
-use MooseX::Types::Moose qw(Str);
+use MooseX::Types::Moose qw(Str ArrayRef);
 use Pinto::Types qw(AuthorID);
 
 use Class::Load qw();
@@ -28,10 +28,18 @@ class_type('Pinto::Remote');
 #------------------------------------------------------------------------------
 
 has repos => (
-    is        => 'ro',
-    isa       =>  Str,
-    required  => 1,
+    is         => 'ro',
+    isa        =>  ArrayRef[Str],
+    auto_deref => 1,
+    required   => 1,
 );
+
+around mvp_multivalue_args => sub {
+  my ($orig, $self) = @_;
+
+  my @start = $self->$orig;
+  return (@start, 'repos');
+};
 
 has author => (
     is         => 'ro',
@@ -41,9 +49,10 @@ has author => (
 
 has pinto => (
     is         => 'ro',
-    isa        => 'Pinto | Pinto::Remote',
+    isa        => 'ArrayRef[Pinto | Pinto::Remote]',
     init_arg   => undef,
     lazy_build => 1,
+    auto_deref => 1,
 );
 
 #------------------------------------------------------------------------------
@@ -62,16 +71,21 @@ sub _build_author {
 sub _build_pinto {
     my ($self) = @_;
 
-    my $repos = $self->repos();
-    my $type  = $repos =~ m{^ http:// }mx ? 'remote'        : 'local';
-    my $class = $type eq 'remote'         ? 'Pinto::Remote' : 'Pinto';
-    my $version = $self->VERSION();
-    my $options = { -version => $version };
+    my @classes;
+    my @repos = $self->repos();
+    for my $repo ( @repos ) {
+        my $type  = $repo =~ m{^ http:// }mx ? 'remote'        : 'local';
+        my $class = $type eq 'remote'        ? 'Pinto::Remote' : 'Pinto';
+        my $version = $self->VERSION();
+        my $options = { -version => $version };
 
-    $self->log_fatal("You must install $class-$version to release to a $type repository: $@")
-        if not eval { Class::Load::load_class($class, $options); 1 };
+        $self->log_fatal("You must install $class-$version to release to a $type repository: $@")
+            if not eval { Class::Load::load_class($class, $options); 1 };
 
-    return $class->new(repos => $repos, quiet => 1);
+        push @classes, $class->new(repos => $repo, quiet => 1);
+    }
+
+    return [ @classes ];
 }
 
 #------------------------------------------------------------------------------
@@ -87,20 +101,27 @@ sub release {
 sub _ping {
     my ($self) = @_;
 
-    my $pinto = $self->pinto();
-    my $repos = $pinto->config->repos();
-    $self->log("checking if repository at $repos is available");
+    my @pintos  = $self->pinto();
+    my $return = 1;
+    for my $pinto ( @pintos ) {
+        my $config = $pinto->config();
+        my $repos  = $config->isa( 'Pinto::Remote::Config' ) ? $config->repos : $config->root_dir;
+        $self->log("checking if repository at $repos is available");
 
-    $pinto->new_batch(noinit => 1);
-    $pinto->add_action('Nop');
-    my $result = $pinto->run_actions();
-    return 1 if $result->is_success();
+        $pinto->new_batch(noinit => 1);
+        $pinto->add_action('Nop');
+        my $result = $pinto->run_actions();
+        if ( $result->is_success() ) {
+            next;
+        }
 
-    my $msg = "repository at $repos is not available.  Abort the rest of the release?";
-    my $abort  = $self->zilla->chrome->prompt_yn($msg, {default => 'Y'});
-    $self->log_fatal('Aborting') if $abort;
+        my $msg = "repository at $repos is not available.  Abort the rest of the release?";
+        my $abort  = $self->zilla->chrome->prompt_yn($msg, {default => 'Y'});
+        $self->log_fatal('Aborting') if $abort;
+        $return = 0;
+    }
 
-    return 0;
+    return $return;
 }
 
 #------------------------------------------------------------------------------
@@ -108,22 +129,27 @@ sub _ping {
 sub _release {
     my ($self, $archive) = @_;
 
-    my $pinto = $self->pinto();
-    my $repos = $pinto->config->repos();
-    $self->log("adding $archive to repository at $repos");
+    my @pintos = $self->pinto();
+    my $return = 1;
+    for my $pinto ( @pintos ) {
+        my $config = $pinto->config();
+        my $repos  = $config->isa( 'Pinto::Remote::Config' ) ? $config->repos : $config->root_dir;
+        $self->log("adding $archive to repository at $repos");
 
-    $pinto->new_batch();
-    $pinto->add_action('Add', author => $self->author(), archive => $archive);
-    my $result = $pinto->run_actions();
+        $pinto->new_batch();
+        $pinto->add_action('Add', author => $self->author(), archive => $archive);
+        my $result = $pinto->run_actions();
 
-    if ($result->is_success()) {
-        $self->log("added $archive ok");
-        return 1;
+        if ($result->is_success()) {
+            $self->log("added $archive ok");
+        }
+        else {
+            $self->log_fatal("failed to add $archive: " . $result->to_string() );
+            $return = 0;
+        }
     }
-    else {
-        $self->log_fatal("failed to add $archive: " . $result->to_string() );
-        return 0;
-    }
+
+    return $return;
 }
 
 #------------------------------------------------------------------------------
@@ -167,6 +193,7 @@ __END__
   # In your dist.ini
   [Pinto::Add]
   repos  = http://pinto.my-company.com  ; required
+  repos  = /pinto/reposA                ; required (at least one repo)
   author = YOU                          ; optional. defaults to username
 
   # Then run the release command
