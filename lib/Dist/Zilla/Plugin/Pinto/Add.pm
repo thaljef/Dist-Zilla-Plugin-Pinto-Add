@@ -88,15 +88,15 @@ sub _ping {
     my ($self) = @_;
 
     my $pinto = $self->pinto();
-    my $repos = $pinto->config->repos();
-    $self->log("checking if repository at $repos is available");
+    my $root = $pinto->config->root();
+    $self->log("checking if repository at $root is available");
 
     $pinto->new_batch(noinit => 1);
     $pinto->add_action('Nop');
     my $result = $pinto->run_actions();
     return 1 if $result->is_success();
 
-    my $msg = "repository at $repos is not available.  Abort the rest of the release?";
+    my $msg = "repository at $root is not available.  Abort the rest of the release?";
     my $abort  = $self->zilla->chrome->prompt_yn($msg, {default => 'Y'});
     $self->log_fatal('Aborting') if $abort;
 
@@ -109,8 +109,8 @@ sub _release {
     my ($self, $archive) = @_;
 
     my $pinto = $self->pinto();
-    my $repos = $pinto->config->repos();
-    $self->log("adding $archive to repository at $repos");
+    my $root  = $pinto->config->root();
+    $self->log("adding $archive to repository at $root");
 
     $pinto->new_batch();
     $pinto->add_action('Add', author => $self->author(), archive => $archive);
