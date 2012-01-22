@@ -203,7 +203,7 @@ want without being forced to have a bunch of other modules that you
 won't use.
 
 Before releasing, L<Dist::Zilla::Plugin::Pinto::Add> will check if the
-repository is available.  If not, you'll be prompted whether to abort
+repository is responding.  If not, you'll be prompted whether to abort
 the rest of the release.
 
 =head1 CONFIGURATION
@@ -222,8 +222,13 @@ Otherwise, the C<REPOSITORY> is assumed to be a path to a local
 repository directory.  In that case, your distribution will be shipped
 with L<Pinto>.
 
-At least one C<root> is required.  You release to mutiple repositories
-by specifying the C<root> attribute multiple times.
+At least one C<root> is required.  You can release to mutiple
+repositories by specifying the C<root> attribute multiple times.  If
+any of the repositories are not responding, we will still try to
+release to the rest of them (unless you decide to abort the release
+altogether).  If none of the repositories are responding, then the
+entire release will be aborted.  Any errors returned by one of the
+repositories will also cause the rest of the release to be aborted.
 
 =item author = NAME
 
