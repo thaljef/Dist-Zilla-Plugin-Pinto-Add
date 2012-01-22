@@ -4,13 +4,13 @@ Dist::Zilla::Plugin::Pinto::Add - Add your dist to a Pinto repository
 
 # VERSION
 
-version 0.028
+version 0.030
 
 # SYNOPSIS
 
     # In your dist.ini
     [Pinto::Add]
-    repos  = http://pinto.my-company.com  ; required
+    root   = http://pinto.my-host         ; at lease one root is required
     author = YOU                          ; optional. defaults to username
 
     # Then run the release command
@@ -37,13 +37,17 @@ the rest of the release.
 The following parameters can be set in the `dist.ini` file for your
 distribution:
 
-- repos = REPOSITORY
+- root = REPOSITORY
 
-This identifies the Pinto repository you want to release to.  If
-`REPOSITORY` looks like a URL (i.e. starts with "http://") then your
-distribution will be shipped with [Pinto::Remote](http://search.cpan.org/perldoc?Pinto::Remote).  Otherwise, the
-`REPOSITORY` is assumed to be a path to a local repository directory.
-In that case, your distribution will be shipped with [Pinto](http://search.cpan.org/perldoc?Pinto).
+This identifies the root of the Pinto repository you want to release
+to.  If `REPOSITORY` looks like a URL (i.e. starts with "http://")
+then your distribution will be shipped with [Pinto::Remote](http://search.cpan.org/perldoc?Pinto::Remote).
+Otherwise, the `REPOSITORY` is assumed to be a path to a local
+repository directory.  In that case, your distribution will be shipped
+with [Pinto](http://search.cpan.org/perldoc?Pinto).
+
+At least one `root` is required.  You release to mutiple repositories
+by specifying the `root` attribute multiple times.
 
 - author = NAME
 
