@@ -1,5 +1,22 @@
 {{$NEXT}}
 
+    The "repos" attribute is now called "root", which is
+    consistent with the rest of the Pinto tools.  You'll
+    need to change your dist.ini files accordingly.
+
+    You can now release to multiple repositories by specifying
+    multiple values for the "root" attribute. [ Thanks reneeb! ]
+
+    You'll be prompted to enter your author ID if we can't
+    figure out your username.
+
+    Now requires either Pinto-0.030 or Pinto::Remote-0.030 or
+    higher (depending on whether you release to local or
+    remote repositories).  Just as before, neither of these
+    are explicit dependencies, so you have to choose the
+    right one and install it manually.
+
+ 
 0.028     2011-12-12 00:55:13 America/Los_Angeles
 
     No new functionality, but now matches the API of the current
