@@ -28,7 +28,7 @@ class_type('Pinto::Remote');
 
 #------------------------------------------------------------------------------
 
-sub mvp_multivalue_args { qw(root) }
+sub mvp_multivalue_args { return qw(root) }
 
 #------------------------------------------------------------------------------
 
@@ -180,6 +180,8 @@ __END__
 
 =pod
 
+=for Pod::Coverage release mvp_multivalue_args
+
 =head1 SYNOPSIS
 
   # In your dist.ini
@@ -222,7 +224,7 @@ Otherwise, the C<REPOSITORY> is assumed to be a path to a local
 repository directory.  In that case, your distribution will be shipped
 with L<Pinto>.
 
-At least one C<root> is required.  You can release to mutiple
+At least one C<root> is required.  You can release to multiple
 repositories by specifying the C<root> attribute multiple times.  If
 any of the repositories are not responding, we will still try to
 release to the rest of them (unless you decide to abort the release
