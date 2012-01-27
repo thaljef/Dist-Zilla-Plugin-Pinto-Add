@@ -1,5 +1,7 @@
 {{$NEXT}}
 
+0.030     2012-01-26 22:51:38 America/Los_Angeles
+
     The "repos" attribute is now called "root", which is
     consistent with the rest of the Pinto tools.  You'll
     need to change your dist.ini files accordingly.
