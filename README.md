@@ -29,7 +29,7 @@ want without being forced to have a bunch of other modules that you
 won't use.
 
 Before releasing, [Dist::Zilla::Plugin::Pinto::Add](http://search.cpan.org/perldoc?Dist::Zilla::Plugin::Pinto::Add) will check if the
-repository is available.  If not, you'll be prompted whether to abort
+repository is responding.  If not, you'll be prompted whether to abort
 the rest of the release.
 
 # CONFIGURATION
@@ -46,8 +46,13 @@ Otherwise, the `REPOSITORY` is assumed to be a path to a local
 repository directory.  In that case, your distribution will be shipped
 with [Pinto](http://search.cpan.org/perldoc?Pinto).
 
-At least one `root` is required.  You release to mutiple repositories
-by specifying the `root` attribute multiple times.
+At least one `root` is required.  You can release to mutiple
+repositories by specifying the `root` attribute multiple times.  If
+any of the repositories are not responding, we will still try to
+release to the rest of them (unless you decide to abort the release
+altogether).  If none of the repositories are responding, then the
+entire release will be aborted.  Any errors returned by one of the
+repositories will also cause the rest of the release to be aborted.
 
 - author = NAME
 
