@@ -46,7 +46,7 @@ Otherwise, the `REPOSITORY` is assumed to be a path to a local
 repository directory.  In that case, your distribution will be shipped
 with [Pinto](http://search.cpan.org/perldoc?Pinto).
 
-At least one `root` is required.  You can release to mutiple
+At least one `root` is required.  You can release to multiple
 repositories by specifying the `root` attribute multiple times.  If
 any of the repositories are not responding, we will still try to
 release to the rest of them (unless you decide to abort the release
