@@ -1,5 +1,10 @@
 {{$NEXT}}
 
+    Added support for the "norecurse" option.  This behaves
+    the same way as --norecurse on pinto-admin and pinto-remote.
+    You'll need version 0.033 or better of Pinto or Pinto::Server
+    to use this.  Thanks Karen Etheridge for inspiring this!
+
 0.030     2012-01-26 22:51:38 America/Los_Angeles
 
     The "repos" attribute is now called "root", which is
