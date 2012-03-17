@@ -4,14 +4,15 @@ Dist::Zilla::Plugin::Pinto::Add - Add your dist to a Pinto repository
 
 # VERSION
 
-version 0.030
+version 0.033
 
 # SYNOPSIS
 
     # In your dist.ini
     [Pinto::Add]
-    root   = http://pinto.my-host         ; at lease one root is required
-    author = YOU                          ; optional. defaults to username
+    root      = http://pinto.my-host      ; at lease one root is required
+    author    = YOU                       ; optional. defaults to username
+    norecurse = 1                         ; optional. defaults to 0
 
     # Then run the release command
     dzil release
@@ -61,6 +62,12 @@ alphanumeric characters (no spaces) and will be forced to UPPERCASE.
 If you do not specify one, it defaults to either your PAUSE ID (if you
 have one configured elsewhere) or your current username.
 
+- norecurse = 0|1
+
+If true, prevents Pinto from recursively importing all the
+distributions required to satisfy the prerequisites for the
+distribution you are adding.  Default is false.
+
 # SUPPORT
 
 ## Perldoc
@@ -94,7 +101,7 @@ The CPAN Testers is a network of smokers who run automated tests on uploaded CPA
 
 - CPAN Testers Matrix
 
-The CPAN Testers Matrix is a website that provides a visual way to determine what Perls/platforms PASSed for a distribution.
+The CPAN Testers Matrix is a website that provides a visual overview of the test results for a distribution on various Perls/platforms.
 
 [http://matrix.cpantesters.org/?dist=Dist-Zilla-Plugin-Pinto-Add](http://matrix.cpantesters.org/?dist=Dist-Zilla-Plugin-Pinto-Add)
 
