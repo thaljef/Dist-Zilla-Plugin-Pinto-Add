@@ -7,7 +7,7 @@ use Moose::Util::TypeConstraints;
 
 use English qw(-no_match_vars);
 
-use MooseX::Types::Moose qw(Str ArrayRef);
+use MooseX::Types::Moose qw(Str ArrayRef Bool);
 use Pinto::Types qw(AuthorID);
 
 use Class::Load qw();
@@ -44,6 +44,13 @@ has author => (
     is         => 'ro',
     isa        => AuthorID,
     lazy_build => 1,
+);
+
+
+has norecurse => (
+    is        => 'ro',
+    isa       => Bool,
+    default   => 0,
 );
 
 
@@ -122,7 +129,11 @@ sub release {
         $self->log("adding $archive to repository at $root");
 
         $pinto->new_batch();
-        $pinto->add_action('Add', author => $self->author(), archive => $archive);
+
+        $pinto->add_action( 'Add', archive   => $archive,
+                                   author    => $self->author(),
+                                   norecurse => $self->norecurse() );
+
         my $result = $pinto->run_actions();
 
         $result->is_success() ? $self->log("added $archive to $root ok")
@@ -186,8 +197,9 @@ __END__
 
   # In your dist.ini
   [Pinto::Add]
-  root   = http://pinto.my-host         ; at lease one root is required
-  author = YOU                          ; optional. defaults to username
+  root      = http://pinto.my-host      ; at lease one root is required
+  author    = YOU                       ; optional. defaults to username
+  norecurse = 1                         ; optional. defaults to 0
 
   # Then run the release command
   dzil release
@@ -238,6 +250,12 @@ This specifies your identity as a module author.  It must be
 alphanumeric characters (no spaces) and will be forced to UPPERCASE.
 If you do not specify one, it defaults to either your PAUSE ID (if you
 have one configured elsewhere) or your current username.
+
+=item norecurse = 0|1
+
+If true, prevents Pinto from recursively importing all the
+distributions required to satisfy the prerequisites for the
+distribution you are adding.  Default is false.
 
 =back
 
