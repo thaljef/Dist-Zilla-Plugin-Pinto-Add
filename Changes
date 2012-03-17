@@ -1,5 +1,7 @@
 {{$NEXT}}
 
+0.033     2012-03-17 01:29:36 America/Los_Angeles
+
     Added support for the "norecurse" option.  This behaves
     the same way as --norecurse on pinto-admin and pinto-remote.
     You'll need version 0.033 or better of Pinto or Pinto::Server
