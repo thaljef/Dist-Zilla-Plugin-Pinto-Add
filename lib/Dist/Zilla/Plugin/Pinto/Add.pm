@@ -99,7 +99,6 @@ sub _build_author {
     my ($self) = @_;
 
     return $self->_get_pause_id()
-           || do { my $username = $self->_get_username(); uc $username if $username }
            || $self->_prompt_for_author_id();
 }
 
