@@ -46,7 +46,8 @@ has root => (
 has author => (
     is         => 'ro',
     isa        => AuthorID,
-    lazy_build => 1,
+    lazy       => 1,
+    builder    => '_build_author',
 );
 
 
@@ -90,7 +91,8 @@ has pintos => (
     isa        => ArrayRef['Pinto | Pinto::Remote'],
     init_arg   => undef,
     auto_deref => 1,
-    lazy_build => 1,
+    lazy       => 1,
+    builder    => '_build_pintos',
 );
 
 #------------------------------------------------------------------------------
