@@ -8,8 +8,11 @@ use Moose::Util::TypeConstraints;
 use English qw(-no_match_vars);
 
 use MooseX::Types::Moose qw(Str ArrayRef Bool);
+use MooseX::Types::Path::Class qw(Dir File);
 use Pinto::Types qw(AuthorID);
 
+use Path::Class;
+use File::HomeDir;
 use Class::Load qw();
 use Try::Tiny;
 
@@ -66,7 +69,7 @@ has username => (
     required => 1,
     default  => sub {
         my ($self) = @_;
-        return $self->zilla->chrome->prompt_str('Pinto username: ', { default => $ENV{USER} });
+        return $self->zilla->chrome->prompt_str('Pinto username: ', { default => $self->_get_username });
     },
 );
 
@@ -96,7 +99,7 @@ sub _build_author {
     my ($self) = @_;
 
     return $self->_get_pause_id()
-           || $self->_get_username()
+           || do { my $username = $self->_get_username(); uc $username if $username }
            || $self->_prompt_for_author_id();
 }
 
@@ -196,12 +199,44 @@ sub release {
 
 #------------------------------------------------------------------------------
 
+has pause_cfg_file => (
+    is      => 'ro',
+    isa     => File,
+    coerce  => 1,
+    lazy    => 1,
+    default => sub {
+        file(File::HomeDir->my_home, '.pause');
+    },
+);
+
+has pause_cfg => (
+    is      => 'ro',
+    isa     => 'HashRef[Str]',
+    traits  => ['Hash'],
+    handles => { pause_cfg_user => [ get => 'user' ] },
+    lazy    => 1,
+    default => sub {
+        my $self = shift;
+
+        my $fh = $self->pause_cfg_file->open('r') or return {};
+        my %ret;
+        # basically taken from the parsing code used by cpan-upload
+        # (maybe this should be part of the CPAN::Uploader api?)
+        # (see also the [UploadToCPAN] code)
+        while (<$fh>) {
+            next if /^\s*(?:#.*)?$/;
+            my ($k, $v) = /^\s*(\w+)\s+(.+)$/;
+            $ret{$k} = $v;
+        }
+        return \%ret;
+    },
+);
+
 sub _get_pause_id {
     my ($self) = @_;
-    # TODO: get from stash
-    return;
+    return $self->pause_cfg_user;
+    # TODO: also look in %PAUSE stash
 }
-
 
 #------------------------------------------------------------------------------
 
@@ -210,12 +245,12 @@ sub _get_username {
 
     # Look at typical environment variables
     for my $var ( qw(USERNAME USER LOGNAME) ) {
-        return uc $ENV{$var} if $ENV{$var};
+        return $ENV{$var} if $ENV{$var};
     }
 
     # Try using pwent.  Probably only works on *nix
     if (my $name = getpwuid($REAL_USER_ID)) {
-        return uc $name;
+        return $name;
     }
 
     return;
