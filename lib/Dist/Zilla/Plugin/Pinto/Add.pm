@@ -19,7 +19,7 @@ use Try::Tiny;
 
 #------------------------------------------------------------------------------
 
-with qw(Dist::Zilla::Role::Releaser);
+with qw(Dist::Zilla::Role::BeforeRelease Dist::Zilla::Role::Releaser);
 
 #------------------------------------------------------------------------------
 
@@ -51,6 +51,34 @@ has norecurse => (
     is        => 'ro',
     isa       => Bool,
     default   => 0,
+);
+
+has auth => (
+    is => 'ro',
+    isa => Bool,
+    default => 0,
+);
+
+has username => (
+    is   => 'ro',
+    isa  => Str,
+    lazy => 1,
+    required => 1,
+    default  => sub {
+        my ($self) = @_;
+        return $self->zilla->chrome->prompt_str('Pinto username: ', { default => $ENV{USER} });
+    },
+);
+
+has password => (
+    is   => 'ro',
+    isa  => Str,
+    lazy => 1,
+    required => 1,
+    default  => sub {
+        my ($self) = @_;
+        return $self->zilla->chrome->prompt_str('Pinto password: ', { noecho => 1 });
+    },
 );
 
 
@@ -85,11 +113,14 @@ sub _build_pintos {
         my $type  = $root =~ m{^ http:// }mx ? 'remote'        : 'local';
         my $class = $type eq 'remote'        ? 'Pinto::Remote' : 'Pinto';
 
+        my %auth_args = $self->auth and $class->isa('Pinto::Remote')
+            ? ( username => $self->username, password => $self->password )
+            : ();
 
         $self->log_fatal("You must install $class-$version to release to a $type repository: $@")
             if not eval { Class::Load::load_class($class, $options); 1 };
 
-        my $pinto = try   { $class->new(root => $root, quiet => 1) }
+        my $pinto = try   { $class->new(root => $root, quiet => 1, %auth_args) }
                     catch { $self->log_fatal($_) };
 
         push @pintos, $self->_ping_it($pinto) ? $pinto : ();
@@ -119,6 +150,24 @@ sub _ping_it {
 }
 
 #------------------------------------------------------------------------------
+
+sub before_release
+{
+    my $self = shift;
+
+    return if not $self->auth;
+    my $problem;
+    try {
+        for my $attr (qw(username password))
+        {
+            $problem = $attr;
+            die unless length $self->$attr;
+        }
+        undef $problem;
+    };
+
+    $self->log_fatal(['You need to supply a %s', $problem]) if $problem;
+}
 
 sub release {
     my ($self, $archive) = @_;
@@ -220,6 +269,11 @@ Before releasing, L<Dist::Zilla::Plugin::Pinto::Add> will check if the
 repository is responding.  If not, you'll be prompted whether to abort
 the rest of the release.
 
+If the 'auth' configuration option is enabled, and either the 'username' or
+'password' options are not configured, you will be prompted you to enter your
+username and password during the BeforeRelease phase.  Entering a
+blank username or password will abort the release.
+
 =head1 CONFIGURATION
 
 The following parameters can be set in the F<dist.ini> file for your
@@ -256,6 +310,19 @@ have one configured elsewhere) or your current username.
 If true, prevents Pinto from recursively importing all the
 distributions required to satisfy the prerequisites for the
 distribution you are adding.  Default is false.
+
+=item auth = 0|1
+
+Indicates that authorization credentials are required for communicating with
+the server (these will be prompted for, if not provided as described below).
+
+=item username = NAME
+
+Specifies the username to use for server authentication.
+
+=item password = PASS
+
+Specifies the password to use for server authentication.
 
 =back
 
