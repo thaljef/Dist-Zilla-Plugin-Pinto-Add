@@ -57,11 +57,13 @@ has norecurse => (
     default   => 0,
 );
 
+
 has auth => (
     is => 'ro',
     isa => Bool,
     default => 0,
 );
+
 
 has username => (
     is   => 'ro',
@@ -73,6 +75,7 @@ has username => (
         return $self->zilla->chrome->prompt_str('Pinto username: ', { default => $self->_get_username });
     },
 );
+
 
 has password => (
     is   => 'ro',
@@ -171,7 +174,11 @@ sub before_release
     };
 
     $self->log_fatal(['You need to supply a %s', $problem]) if $problem;
+
+    return 1;
 }
+
+#------------------------------------------------------------------------------
 
 sub release {
     my ($self, $archive) = @_;
