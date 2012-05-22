@@ -228,8 +228,8 @@ Before releasing, L<Dist::Zilla::Plugin::Pinto::Add> will check if the
 repository is responding.  If not, you'll be prompted whether to abort
 the rest of the release.
 
-If the 'authenticate' configuration option is enabled, and either the
-'username' or 'password' options are not configured, you will be
+If the C<authenticate> configuration option is enabled, and either the
+C<username> or C<password> options are not configured, you will be
 prompted you to enter your username and password during the
 BeforeRelease phase.  Entering a blank username or password will abort
 the release.
