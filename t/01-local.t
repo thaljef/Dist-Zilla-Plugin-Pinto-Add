@@ -8,6 +8,7 @@ use Test::DZil;
 use Test::Exception;
 
 use File::Temp;
+use File::Path;
 use Class::Load;
 use Dist::Zilla::Tester;
 use Dist::Zilla::Plugin::Pinto::Add;
@@ -214,71 +215,10 @@ sub build_tzil {
   $t2->repository_clean_ok;
 }
 
-
 #---------------------------------------------------------------------
-done_testing;
+# Clean up after Test::DZil;
 
-__END__
-
-    'FakeRelease',
-    [ UploadToCPAN => { %safety_first } ],
-  );
- 
-  # Pretend user just hits Enter at the prompts:
-  set_responses($tzil, '', '');
- 
-  like( exception { $tzil->release },
-        qr/You need to supply a username/,
-        "release without credentials fails");
- 
-  my $msgs = $tzil->log_messages;
- 
-  ok(grep({ /You need to supply a username/} @$msgs), "insist on username");
-  ok(!grep({ /Uploading.*DZT-Sample/ } @$msgs), "no upload without credentials");
-  ok(
-    !grep({ /fake release happen/i } @$msgs),
-    "no release without credentials"
-  );
-}
- 
-#---------------------------------------------------------------------
-# No config at all, but enter username:
-{
-  my $tzil = build_tzil(
-    'FakeRelease',
-    [ UploadToCPAN => { %safety_first } ],
-  );
- 
-  # Pretend user just hits Enter at the password prompt:
-  set_responses($tzil, 'user', '');
- 
-  like( exception { $tzil->release },
-        qr/You need to supply a password/,
-        "release without password fails");
- 
-  my $msgs = $tzil->log_messages;
- 
-  ok(grep({ /You need to supply a password/} @$msgs), "insist on password");
-  ok(!grep({ /Uploading.*DZT-Sample/ } @$msgs), "no upload without password");
-  ok(
-    !grep({ /fake release happen/i } @$msgs),
-    "no release without password"
-  );
-}
-#------------------------------------------------------------------------------
-
-
-
-my $tzil = Dist::Zilla::Tester->from_config(
-  { dist_root => 'corpus/dist/FooBar' },
-  { add_files => { 'source/dist.ini' => $dist_ini } },
-);
-
-$tzil->build;
-$tzil->release;
-
-$tinto->registration_ok('ME/FooBar-1.0/Foo~1.0');
-$tinto->registration_ok('ME/FooBar-1.0/Bar~1.2');
+eval { rmtree('tmp') } if -e 'tmp';
 
 #------------------------------------------------------------------------------
 done_testing;
