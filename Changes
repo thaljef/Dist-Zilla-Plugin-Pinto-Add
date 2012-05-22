@@ -1,5 +1,15 @@
 {{$NEXT}}
 
+    Now requires Pinto-0.42 or newer.  Should also work
+    with Pinto::Remote-0.042, when it comes out.
+
+    Added functional tests, but they only run if you have
+    Pinto installed.
+
+    The "auth" configuration parameter has been renamed
+    to "authenticate" to avoid confusion with the "author"
+    parameter.
+
 0.033     2012-03-17 01:29:36 America/Los_Angeles
 
     Added support for the "norecurse" option.  This behaves
