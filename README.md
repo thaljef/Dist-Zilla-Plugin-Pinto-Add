@@ -4,7 +4,7 @@ Dist::Zilla::Plugin::Pinto::Add - Add your dist to a Pinto repository
 
 # VERSION
 
-version 0.043
+version 0.042
 
 # SYNOPSIS
 
@@ -34,8 +34,8 @@ Before releasing, [Dist::Zilla::Plugin::Pinto::Add](http://search.cpan.org/perld
 repository is responding.  If not, you'll be prompted whether to abort
 the rest of the release.
 
-If the 'authenticate' configuration option is enabled, and either the
-'username' or 'password' options are not configured, you will be
+If the `authenticate` configuration option is enabled, and either the
+`username` or `password` options are not configured, you will be
 prompted you to enter your username and password during the
 BeforeRelease phase.  Entering a blank username or password will abort
 the release.
