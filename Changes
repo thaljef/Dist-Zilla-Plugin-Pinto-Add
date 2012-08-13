@@ -1,10 +1,13 @@
 {{$NEXT}}
 
-    Now requires Pinto-0.42 or newer.  Should also work
-    with Pinto::Remote-0.042, when it comes out.
+    Now requires Pinto-0.46 or Pinto::Remote-0.046.  These are
+    not listed as dependencies, so you can decide which one
+    you need to install.
+
+    You can now specify which stack to put the release on.
 
     Added functional tests, but they only run if you have
-    Pinto installed.
+    the proper Pinto backends installed.
 
     The "auth" configuration parameter has been renamed
     to "authenticate" to avoid confusion with the "author"

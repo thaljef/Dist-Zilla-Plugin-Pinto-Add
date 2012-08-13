@@ -4,7 +4,7 @@ Dist::Zilla::Plugin::Pinto::Add - Add your dist to a Pinto repository
 
 # VERSION
 
-version 0.042
+version 0.046
 
 # SYNOPSIS
 
