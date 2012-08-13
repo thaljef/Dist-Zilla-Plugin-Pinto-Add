@@ -6,7 +6,7 @@ use Moose;
 use Moose::Util::TypeConstraints;
 
 use MooseX::Types::Moose qw(Str ArrayRef Bool);
-use Pinto::Types qw(Author);
+use Pinto::Types qw(Author StackDefault);
 
 use Try::Tiny;
 use Path::Class;
@@ -58,6 +58,12 @@ has norecurse => (
     default   => 0,
 );
 
+
+has stack     => (
+    is        => 'ro',
+    isa       => StackDefault,
+    default   => undef,
+);
 
 has authenticate => (
     is => 'ro',
@@ -137,7 +143,7 @@ sub _ping_it {
     my $root  = $pinto->root;
     $self->log("checking if repository at $root is available");
 
-    my $ok = try { $pinto->run('Nop'); 1 };
+    my $ok = try   { $pinto->run('Nop')->was_successful };
     return 1 if $ok;
 
     my $msg = "repository at $root is not available.  Abort the rest of the release?";
@@ -178,8 +184,9 @@ sub release {
         my $root  = $pinto->root;
         $self->log("adding $archive to repository at $root");
 
-        my $result = $pinto->run( 'Add', archives  => $archive,
+        my $result = $pinto->run( 'Add', archives  => [ $archive->stringify ],
                                          author    => $self->author,
+                                         stack     => $self->stack,
                                          norecurse => $self->norecurse );
 
         $result->was_successful ? $self->log("added $archive to $root ok")
@@ -198,7 +205,7 @@ __END__
 
 =pod
 
-=for Pod::Coverage release mvp_multivalue_args
+=for Pod::Coverage before_release release mvp_multivalue_args
 
 =head1 SYNOPSIS
 
@@ -206,6 +213,7 @@ __END__
   [Pinto::Add]
   root         = http://pinto.my-host      ; at lease one root is required
   author       = YOU                       ; optional. defaults to username
+  stack        = stack_name                ; optional. defaults to undef
   norecurse    = 1                         ; optional. defaults to 0
   authenticate = 1                         ; optional. defaults to 0
   username     = you                       ; optional. will prompt if needed
@@ -244,11 +252,11 @@ distribution:
 =item root = REPOSITORY
 
 This identifies the root of the Pinto repository you want to release
-to.  If C<REPOSITORY> looks like a URL (i.e. starts with "http://")
-then your distribution will be shipped with L<Pinto::Remote>.
-Otherwise, the C<REPOSITORY> is assumed to be a path to a local
-repository directory and your distribution will be shipped with
-L<Pinto>.
+to.  If C<REPOSITORY> looks like a remote URL (i.e. it starts with
+"http://") then your distribution will be shipped with
+L<Pinto::Remote>.  Otherwise, the C<REPOSITORY> is assumed to be a
+path to a local repository directory and your distribution will be
+shipped with L<Pinto>.
 
 At least one C<root> is required.  You can release to multiple
 repositories by specifying the C<root> attribute multiple times.  If
@@ -264,6 +272,12 @@ This specifies your identity as a module author.  It must be
 alphanumeric characters (no spaces) and will be forced to UPPERCASE.
 If you do not specify one, it defaults to either your PAUSE ID (if you
 have one configured in F<~/.pause>) or your current username.
+
+=item stack = NAME
+
+This specifies which stack in the repository to put the released
+packages into.  Defaults to C<undef>, which means to use whatever
+stack is currently defined as the default by the repository.
 
 =item norecurse = 0|1
 
@@ -285,6 +299,19 @@ Specifies the username to use for server authentication.
 =item password = PASS
 
 Specifies the password to use for server authentication.
+
+=head1 RELEASING TO MULTIPLE REPOSITORIES
+
+You can release your distribution to multiple repositories by
+specifying multiple values for the C<root> attribute in your
+F<dist.ini> file.  In that case, the remaining attributes
+(e.g. C<stack>, C<author>, C<authenticate>) will apply to all the
+repositories.
+
+However, the recommended way to release multiple to repositories is to
+have multiple C<[Pinto::Add]> blocks in your F<dist.ini> file.  This
+allows you to set attributes for each repository independently (at the
+expense of possibly having to duplicating some information).
 
 =back
 
