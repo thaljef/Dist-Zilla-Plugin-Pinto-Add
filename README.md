@@ -12,6 +12,7 @@ version 0.042
     [Pinto::Add]
     root         = http://pinto.my-host      ; at lease one root is required
     author       = YOU                       ; optional. defaults to username
+    stack        = stack_name                ; optional. defaults to undef
     norecurse    = 1                         ; optional. defaults to 0
     authenticate = 1                         ; optional. defaults to 0
     username     = you                       ; optional. will prompt if needed
@@ -48,11 +49,11 @@ distribution:
 - root = REPOSITORY
 
 This identifies the root of the Pinto repository you want to release
-to.  If `REPOSITORY` looks like a URL (i.e. starts with "http://")
-then your distribution will be shipped with [Pinto::Remote](http://search.cpan.org/perldoc?Pinto::Remote).
-Otherwise, the `REPOSITORY` is assumed to be a path to a local
-repository directory and your distribution will be shipped with
-[Pinto](http://search.cpan.org/perldoc?Pinto).
+to.  If `REPOSITORY` looks like a remote URL (i.e. it starts with
+"http://") then your distribution will be shipped with
+[Pinto::Remote](http://search.cpan.org/perldoc?Pinto::Remote).  Otherwise, the `REPOSITORY` is assumed to be a
+path to a local repository directory and your distribution will be
+shipped with [Pinto](http://search.cpan.org/perldoc?Pinto).
 
 At least one `root` is required.  You can release to multiple
 repositories by specifying the `root` attribute multiple times.  If
@@ -68,6 +69,12 @@ This specifies your identity as a module author.  It must be
 alphanumeric characters (no spaces) and will be forced to UPPERCASE.
 If you do not specify one, it defaults to either your PAUSE ID (if you
 have one configured in `~/.pause`) or your current username.
+
+- stack = NAME
+
+This specifies which stack in the repository to put the released
+packages into.  Defaults to `undef`, which means to use whatever
+stack is currently defined as the default by the repository.
 
 - norecurse = 0|1
 
@@ -89,6 +96,19 @@ Specifies the username to use for server authentication.
 - password = PASS
 
 Specifies the password to use for server authentication.
+
+# RELEASING TO MULTIPLE REPOSITORIES
+
+You can release your distribution to multiple repositories by
+specifying multiple values for the `root` attribute in your
+`dist.ini` file.  In that case, the remaining attributes
+(e.g. `stack`, `author`, `authenticate`) will apply to all the
+repositories.
+
+However, the recommended way to release multiple to repositories is to
+have multiple `[Pinto::Add]` blocks in your `dist.ini` file.  This
+allows you to set attributes for each repository independently (at the
+expense of possibly having to duplicating some information).
 
 # SUPPORT
 
