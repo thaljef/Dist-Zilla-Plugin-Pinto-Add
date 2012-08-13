@@ -6,7 +6,7 @@ use Moose;
 use Moose::Util::TypeConstraints;
 
 use MooseX::Types::Moose qw(Str ArrayRef Bool);
-use Pinto::Types qw(Author StackDefault);
+use Pinto::Types qw(Author StackName StackDefault);
 
 use Try::Tiny;
 use Path::Class;
@@ -61,7 +61,7 @@ has norecurse => (
 
 has stack     => (
     is        => 'ro',
-    isa       => StackDefault,
+    isa       => StackName | StackDefault,
     default   => undef,
 );
 
