@@ -32,6 +32,10 @@ my $has_pinto = Class::Load::try_load_class('Pinto');
 plan skip_all => 'Pinto required' if not $has_pinto;
 
 #------------------------------------------------------------------------------
+# TODO: Most of 01-remote.t and 02-remote.t are identical.  The only difference
+# is the use of a local repository vs. a remote one.  So factor out these
+# differences and consolidate them into one test script.
+#------------------------------------------------------------------------------
 
 sub build_tzil {
 
