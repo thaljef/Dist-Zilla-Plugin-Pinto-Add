@@ -51,11 +51,11 @@ sub build_tzil {
 }
 
 #---------------------------------------------------------------------
-# read author from $ENV;
+# simple release
 
 {
 
-  local $ENV{USER} = 'DUMMY';
+  local $ENV{USER} = 'DUMMY';  # To make author constant
 
   my $t = Pinto::Server::Tester->new;
   $t->start_server;
@@ -65,6 +65,25 @@ sub build_tzil {
   $tzil->release;
 
   $t->registration_ok("DUMMY/DZT-Sample-0.001/DZT::Sample~0.001/");
+}
+
+#---------------------------------------------------------------------
+# release to a stack
+
+{
+
+  local $ENV{USER} = 'DUMMY';  # To make author constant
+
+  my $t     = Pinto::Tester->new;
+  $t->run_ok('New', {stack => 'test'});
+
+  my $root  = $t->pinto->root->stringify;
+  my $tzil  = build_tzil( ['Pinto::Add' => {root => $root,
+                                            stack => 'test',
+                                            pauserc => ''}] );
+  $tzil->release;
+
+  $t->registration_ok("DUMMY/DZT-Sample-0.001/DZT::Sample~0.001/test");
 }
 
 #---------------------------------------------------------------------

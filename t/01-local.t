@@ -47,11 +47,11 @@ sub build_tzil {
 }
 
 #---------------------------------------------------------------------
-# read author from $ENV;
+# simple release
 
 {
 
-  local $ENV{USER} = 'DUMMY';
+  local $ENV{USER} = 'DUMMY'; # To make author constant
 
   my $t     = Pinto::Tester->new;
   my $root  = $t->pinto->root->stringify;
@@ -60,6 +60,26 @@ sub build_tzil {
 
   $t->registration_ok("DUMMY/DZT-Sample-0.001/DZT::Sample~0.001/");
 }
+
+#---------------------------------------------------------------------
+# release to a stack
+
+{
+
+  local $ENV{USER} = 'DUMMY'; # To make author constant
+
+  my $t     = Pinto::Tester->new;
+  $t->run_ok('New', {stack => 'test'});
+
+  my $root  = $t->pinto->root->stringify;
+  my $tzil  = build_tzil( ['Pinto::Add' => {root => $root,
+                                            stack => 'test',
+                                            pauserc => ''}] );
+  $tzil->release;
+
+  $t->registration_ok("DUMMY/DZT-Sample-0.001/DZT::Sample~0.001/test");
+}
+
 
 #---------------------------------------------------------------------
 # read author from pauserc
@@ -156,11 +176,8 @@ sub build_tzil {
 # multiple repositories
 
 {
-  my $t1     = Pinto::Tester->new;
-  my $root1  = $t1->pinto->root->stringify;
-
-  my $t2     = Pinto::Tester->new;
-  my $root2  = $t2->pinto->root->stringify;
+  my ($t1, $t2)  = map { Pinto::Tester->new } (1,2);
+  my ($root1, $root2) = map { $_->root } ($t1, $t2);
 
   my $tzil  = build_tzil( ['Pinto::Add' => { root => [$root1, $root2],
                                              author => 'AUTHORID' }] );
@@ -175,11 +192,10 @@ sub build_tzil {
 # one of the repositories is locked -- abort release
 
 {
-  my $t1     = Pinto::Tester->new;
-  my $root1  = $t1->pinto->root->stringify;
 
-  my $t2     = Pinto::Tester->new;
-  my $root2  = $t2->pinto->root->stringify;
+  my ($t1, $t2)  = map { Pinto::Tester->new } (1,2);
+  my ($root1, $root2) = map { $_->root } ($t1, $t2);
+
   $t2->pinto->repos->lock_exclusive;
 
   my $tzil  = build_tzil( ['Pinto::Add' => { root => [$root1, $root2],
@@ -199,11 +215,10 @@ sub build_tzil {
 # one of the repositories is locked -- partial release
 
 {
-  my $t1     = Pinto::Tester->new;
-  my $root1  = $t1->pinto->root->stringify;
 
-  my $t2     = Pinto::Tester->new;
-  my $root2  = $t2->pinto->root->stringify;
+  my ($t1, $t2)  = map { Pinto::Tester->new } (1,2);
+  my ($root1, $root2) = map { $_->root } ($t1, $t2);
+
   $t2->pinto->repos->lock_exclusive;
 
   my $tzil  = build_tzil( ['Pinto::Add' => { root => [$root1, $root2],
