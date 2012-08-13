@@ -8,6 +8,7 @@ use Moose::Util::TypeConstraints;
 use MooseX::Types::Moose qw(Str ArrayRef Bool);
 use Pinto::Types qw(Author StackName StackDefault);
 
+use Carp;
 use Try::Tiny;
 use Path::Class;
 use Class::Load;
@@ -164,7 +165,7 @@ sub before_release
         for my $attr (qw(username password))
         {
             $problem = $attr;
-            die unless length $self->$attr;
+            croak unless length $self->$attr;
         }
         undef $problem;
     };
@@ -205,6 +206,8 @@ __END__
 
 =pod
 
+=for stopwords BeforeRelease
+
 =for Pod::Coverage before_release release mvp_multivalue_args
 
 =head1 SYNOPSIS
@@ -230,7 +233,7 @@ will add your distribution to a local or remote L<Pinto> repository.
 B<IMPORTANT:> You'll need to install L<Pinto>, or L<Pinto::Remote>, or
 both, depending on whether you're going to release to a local or
 remote repository.  Both of those modules ship separately to from this
-module to minimize the depedency stack.
+module to minimize the dependency stack.
 
 Before releasing, L<Dist::Zilla::Plugin::Pinto::Add> will check if the
 repository is responding.  If not, you'll be prompted whether to abort
@@ -300,6 +303,8 @@ Specifies the username to use for server authentication.
 
 Specifies the password to use for server authentication.
 
+=back
+
 =head1 RELEASING TO MULTIPLE REPOSITORIES
 
 You can release your distribution to multiple repositories by
@@ -312,7 +317,5 @@ However, the recommended way to release multiple to repositories is to
 have multiple C<[Pinto::Add]> blocks in your F<dist.ini> file.  This
 allows you to set attributes for each repository independently (at the
 expense of possibly having to duplicating some information).
-
-=back
 
 =cut
