@@ -29,7 +29,7 @@ will add your distribution to a local or remote [Pinto](http://search.cpan.org/p
 __IMPORTANT:__ You'll need to install [Pinto](http://search.cpan.org/perldoc?Pinto), or [Pinto::Remote](http://search.cpan.org/perldoc?Pinto::Remote), or
 both, depending on whether you're going to release to a local or
 remote repository.  Both of those modules ship separately to from this
-module to minimize the depedency stack.
+module to minimize the dependency stack.
 
 Before releasing, [Dist::Zilla::Plugin::Pinto::Add](http://search.cpan.org/perldoc?Dist::Zilla::Plugin::Pinto::Add) will check if the
 repository is responding.  If not, you'll be prompted whether to abort
