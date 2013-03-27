@@ -55,16 +55,15 @@ sub build_tzil {
 
 {
 
-  local $ENV{USER} = 'DUMMY';  # To make author constant
-
   my $t = Pinto::Server::Tester->new;
   $t->start_server;
 
   my $root  = $t->server_url;
-  my $tzil  = build_tzil( ['Pinto::Add' => {root => $root, pauserc => ''}] );
+  my $tzil  = build_tzil( ['Pinto::Add' => {root    => $root, 
+                                            pauserc => ''}] );
   $tzil->release;
 
-  $t->registration_ok("DUMMY/DZT-Sample-0.001/DZT::Sample~0.001/");
+  $t->registration_ok("AUTHOR/DZT-Sample-0.001/DZT::Sample~0.001/");
 }
 
 #---------------------------------------------------------------------
@@ -72,10 +71,10 @@ sub build_tzil {
 
 {
 
-  local $ENV{USER} = 'DUMMY';  # To make author constant
+  my $t  = Pinto::Server::Tester->new;
+  $t->start_server;
 
-  my $t     = Pinto::Tester->new;
-  $t->run_ok('New', {stack => 'test'});
+  $t->run_ok('New', {stack => 'test', message => 'New stack'});
 
   my $root  = $t->pinto->root->stringify;
   my $tzil  = build_tzil( ['Pinto::Add' => {root => $root,
@@ -83,7 +82,7 @@ sub build_tzil {
                                             pauserc => ''}] );
   $tzil->release;
 
-  $t->registration_ok("DUMMY/DZT-Sample-0.001/DZT::Sample~0.001/test");
+  $t->registration_ok("AUTHOR/DZT-Sample-0.001/DZT::Sample~0.001/test");
 }
 
 #---------------------------------------------------------------------
@@ -99,6 +98,7 @@ sub build_tzil {
 
   my $root  = $t->server_url;
   my $tzil  = build_tzil( ['Pinto::Add' => {root => $root, pauserc => $pause_file}] );
+
   $tzil->release;
 
   $t->registration_ok("PAUSEID/DZT-Sample-0.001/DZT::Sample~0.001/");
@@ -113,6 +113,7 @@ sub build_tzil {
 
   my $root  = $t->server_url;
   my $tzil  = build_tzil( ['Pinto::Add' => {root => $root, author => 'AUTHORID'}] );
+
   $tzil->release;
 
   $t->registration_ok("AUTHORID/DZT-Sample-0.001/DZT::Sample~0.001/");
@@ -140,12 +141,14 @@ sub build_tzil {
 
 {
 
+  diag("You will see some warnings here.  Do not be alarmed.");
+
   local $Pinto::Locker::LOCKFILE_TIMEOUT = 5;
 
   my ($t1, $t2) = map {Pinto::Server::Tester->new} (1,2);
   $_->start_server for ($t1, $t2);
 
-  $t2->pinto->repos->lock_exclusive; # $t2 is now unavailable!
+  $t2->pinto->repo->lock('EX'); # $t2 is now unavailable!
 
   my ($root1, $root2) = map { $_->server_url } ($t1, $t2);
   my $tzil  = build_tzil( ['Pinto::Add' => { root => [$root1, $root2],
@@ -155,6 +158,7 @@ sub build_tzil {
 
   $tzil->chrome->set_response_for($prompt, 'Y');
   throws_ok { $tzil->release } qr/Aborting/;
+
   $t1->repository_clean_ok;
   $t2->repository_clean_ok;
 }
@@ -164,12 +168,14 @@ sub build_tzil {
 
 {
 
+  diag("You will see some warnings here.  Do not be alarmed.");
+
   local $Pinto::Locker::LOCKFILE_TIMEOUT = 5;
 
   my ($t1, $t2) = map {Pinto::Server::Tester->new} (1,2);
   $_->start_server for ($t1, $t2);
 
-  $t2->pinto->repos->lock_exclusive; # $t2 is now unavailable!
+  $t2->pinto->repo->lock('EX'); # $t2 is now unavailable!
 
   my ($root1, $root2) = map { $_->server_url } ($t1, $t2);
   my $tzil  = build_tzil( ['Pinto::Add' => { root => [$root1, $root2],
