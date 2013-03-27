@@ -51,14 +51,13 @@ sub build_tzil {
 
 {
 
-  local $ENV{USER} = 'DUMMY'; # To make author constant
-
   my $t     = Pinto::Tester->new;
   my $root  = $t->pinto->root->stringify;
-  my $tzil  = build_tzil( ['Pinto::Add' => {root => $root, pauserc => ''}] );
+  my $tzil  = build_tzil( ['Pinto::Add' => {root    => $root, 
+                                            pauserc => ''}] );
   $tzil->release;
 
-  $t->registration_ok("DUMMY/DZT-Sample-0.001/DZT::Sample~0.001/");
+  $t->registration_ok("AUTHOR/DZT-Sample-0.001/DZT::Sample~0.001/");
 }
 
 #---------------------------------------------------------------------
@@ -66,18 +65,16 @@ sub build_tzil {
 
 {
 
-  local $ENV{USER} = 'DUMMY'; # To make author constant
-
   my $t     = Pinto::Tester->new;
   $t->run_ok('New', {stack => 'test'});
 
   my $root  = $t->pinto->root->stringify;
-  my $tzil  = build_tzil( ['Pinto::Add' => {root => $root,
-                                            stack => 'test',
+  my $tzil  = build_tzil( ['Pinto::Add' => {root    => $root,
+                                            stack   => 'test',
                                             pauserc => ''}] );
   $tzil->release;
 
-  $t->registration_ok("DUMMY/DZT-Sample-0.001/DZT::Sample~0.001/test");
+  $t->registration_ok("AUTHOR/DZT-Sample-0.001/DZT::Sample~0.001/test");
 }
 
 
@@ -92,6 +89,7 @@ sub build_tzil {
   my $t     = Pinto::Tester->new;
   my $root  = $t->pinto->root->stringify;
   my $tzil  = build_tzil( ['Pinto::Add' => {root => $root, pauserc => $pause_file}] );
+
   $tzil->release;
 
   $t->registration_ok("PAUSEID/DZT-Sample-0.001/DZT::Sample~0.001/");
@@ -104,6 +102,7 @@ sub build_tzil {
   my $t     = Pinto::Tester->new;
   my $root  = $t->pinto->root->stringify;
   my $tzil  = build_tzil( ['Pinto::Add' => {root => $root, author => 'AUTHORID'}] );
+
   $tzil->release;
 
   $t->registration_ok("AUTHORID/DZT-Sample-0.001/DZT::Sample~0.001/");
@@ -151,8 +150,8 @@ sub build_tzil {
                                              username => 'myusername',
                                              password => 'mypassword',
                                              authenticate => 1}] );
-
   $tzil->release;
+
   is $password, 'mypassword', 'got password from dist.ini';
   is $username, 'myusername', 'got username from dist.ini';
 }
@@ -193,10 +192,12 @@ sub build_tzil {
 
 {
 
+  diag("You will see some warnings here.  Do not be alarmed.");
+
   my ($t1, $t2)  = map { Pinto::Tester->new } (1,2);
   my ($root1, $root2) = map { $_->root } ($t1, $t2);
 
-  $t2->pinto->repos->lock_exclusive;
+  $t2->pinto->repo->lock('EX');
 
   my $tzil  = build_tzil( ['Pinto::Add' => { root => [$root1, $root2],
                                              author => 'AUTHORID' }] );
@@ -216,10 +217,12 @@ sub build_tzil {
 
 {
 
-  my ($t1, $t2)  = map { Pinto::Tester->new } (1,2);
+  diag("You will see some warnings here.  Do not be alarmed.");
+
+  my ($t1, $t2) = map { Pinto::Tester->new } (1,2);
   my ($root1, $root2) = map { $_->root } ($t1, $t2);
 
-  $t2->pinto->repos->lock_exclusive;
+  $t2->pinto->repo->lock('EX');
 
   my $tzil  = build_tzil( ['Pinto::Add' => { root => [$root1, $root2],
                                              author => 'AUTHORID' }] );
@@ -228,7 +231,7 @@ sub build_tzil {
   my $prompt = "repository at $root2 is not available.  Abort the rest of the release?";
 
   $tzil->chrome->set_response_for($prompt, 'N');
-  lives_ok { $tzil->release };
+  $tzil->release;
 
   $t1->registration_ok("AUTHORID/DZT-Sample-0.001/DZT::Sample~0.001/");
   $t2->repository_clean_ok;

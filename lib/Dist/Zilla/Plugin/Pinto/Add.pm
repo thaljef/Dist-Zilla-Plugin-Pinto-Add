@@ -1,19 +1,17 @@
-# ABSTRACT: Add your dist to a Pinto repository
+# ABSTRACT: Ship your dist to a Pinto repository
 
 package Dist::Zilla::Plugin::Pinto::Add;
 
 use Moose;
 use Moose::Util::TypeConstraints;
-
 use MooseX::Types::Moose qw(Str ArrayRef Bool);
-use Pinto::Types qw(Author StackName StackDefault);
 
 use Carp;
 use Try::Tiny;
-use Path::Class;
 use Class::Load;
-use File::HomeDir;
-use English qw(-no_match_vars);
+
+use Pinto::Util qw(current_author_id current_username);
+use Pinto::Types qw(AuthorID StackName StackDefault);
 
 #------------------------------------------------------------------------------
 
@@ -37,26 +35,25 @@ sub mvp_multivalue_args { return qw(root) }
 #------------------------------------------------------------------------------
 
 has root => (
-    is         => 'ro',
     isa        => ArrayRef[Str],
-    auto_deref => 1,
+    traits     => [ qw(Array) ],
+    handles    => {root => 'elements'},
     required   => 1,
 );
 
 
 has author => (
     is         => 'ro',
-    isa        => Author,
-    default    => sub { uc ($_[0]->pausecfg->{user} || $ENV{USER}) },
-    coerce     => 1,
+    isa        => AuthorID,
+    default    => sub { uc ($_[0]->pausecfg->{user} || '') || current_author_id },
     lazy       => 1,
 );
 
 
-has norecurse => (
-    is        => 'ro',
-    isa       => Bool,
-    default   => 0,
+has no_recurse => (
+    is         => 'ro',
+    isa        => Bool,
+    default    => 0,
 );
 
 
@@ -65,6 +62,7 @@ has stack     => (
     isa       => StackName | StackDefault,
     default   => undef,
 );
+
 
 has authenticate => (
     is => 'ro',
@@ -80,7 +78,7 @@ has username => (
     required => 1,
     default  => sub {
         my ($self) = @_;
-        return $self->zilla->chrome->prompt_str('Pinto username: ', { default => $ENV{USER} });
+        return $self->zilla->chrome->prompt_str('Pinto username: ', { default => current_username });
     },
 );
 
@@ -98,12 +96,13 @@ has password => (
 
 
 has pintos => (
-    is         => 'ro',
     isa        => ArrayRef['Pinto | Pinto::Remote'],
-    init_arg   => undef,
-    auto_deref => 1,
-    lazy       => 1,
+    traits     => [ qw(Array) ],
+    handles    => {pintos => 'elements'},
     builder    => '_build_pintos',
+    init_arg   => undef,
+    lazy       => 1,
+
 );
 
 #------------------------------------------------------------------------------
@@ -111,6 +110,8 @@ has pintos => (
 sub _build_pintos {
     my ($self) = @_;
 
+    # TODO: Need more control over the minimum Pinto or
+    # Pinto::Remote version that is required.
     my $version = $self->VERSION;
     my $options = { -version => $version };
     my @pintos;
@@ -185,10 +186,11 @@ sub release {
         my $root  = $pinto->root;
         $self->log("adding $archive to repository at $root");
 
-        my $result = $pinto->run( 'Add', archives  => [ $archive->stringify ],
-                                         author    => $self->author,
-                                         stack     => $self->stack,
-                                         norecurse => $self->norecurse );
+        my $result = $pinto->run( 'Add', archives   => [ $archive->stringify ],
+                                         author     => $self->author,
+                                         stack      => $self->stack,
+                                         no_recurse => $self->no_recurse,
+                                         message    => "Added $archive" );
 
         $result->was_successful ? $self->log("added $archive to $root ok")
                                 : $self->log_fatal("failed to add $archive to $root: $result");
@@ -214,13 +216,13 @@ __END__
 
   # In your dist.ini
   [Pinto::Add]
-  root         = http://pinto.my-host      ; at lease one root is required
-  author       = YOU                       ; optional. defaults to username
-  stack        = stack_name                ; optional. defaults to undef
-  norecurse    = 1                         ; optional. defaults to 0
-  authenticate = 1                         ; optional. defaults to 0
-  username     = you                       ; optional. will prompt if needed
-  password     = secret                    ; optional. will prompt if needed
+  root          = http://pinto.my-host      ; at lease one root is required
+  author        = YOU                       ; optional. defaults to username
+  stack         = stack_name                ; optional. defaults to undef
+  no_recurse    = 1                         ; optional. defaults to 0
+  authenticate  = 1                         ; optional. defaults to 0
+  username      = you                       ; optional. will prompt if needed
+  password      = secret                    ; optional. will prompt if needed
 
   # Then run the release command
   dzil release
@@ -282,11 +284,11 @@ This specifies which stack in the repository to put the released
 packages into.  Defaults to C<undef>, which means to use whatever
 stack is currently defined as the default by the repository.
 
-=item norecurse = 0|1
+=item no_recurse = 0|1
 
 If true, prevents Pinto from recursively importing all the
 distributions required to satisfy the prerequisites for the
-distribution you are adding.  Default is false.
+distribution you are adding.  Default is 0.
 
 =item authenticate = 0|1
 
@@ -302,6 +304,24 @@ Specifies the username to use for server authentication.
 =item password = PASS
 
 Specifies the password to use for server authentication.
+
+=back
+
+=head1 ENVIRONMENT VARIABLES
+
+The following environment variables can be used to influence the
+default values used for some of the parameters above.
+
+=over 4
+
+=item C<PINTO_AUTHOR_ID>
+
+Sets the default author identity, if the C<author> parameter is
+not set.
+
+=item C<PINTO_USERNAME>
+
+Sets the default username, if the C<username> parameter is not set.
 
 =back
 
