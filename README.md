@@ -140,17 +140,23 @@ You can find documentation for this module with the perldoc command.
 The following websites have more information about this module, and may be of help to you. As always,
 in addition to those websites please use your favorite search engine to discover more resources.
 
-- Search CPAN
+- MetaCPAN
 
-    The default CPAN search engine, useful to view POD in HTML format.
+    A modern, open-source CPAN search engine, useful to view POD in HTML format.
 
-    [http://search.cpan.org/dist/Dist-Zilla-Plugin-Pinto-Add](http://search.cpan.org/dist/Dist-Zilla-Plugin-Pinto-Add)
+    [http://metacpan.org/release/Dist-Zilla-Plugin-Pinto-Add](http://metacpan.org/release/Dist-Zilla-Plugin-Pinto-Add)
 
 - CPAN Ratings
 
     The CPAN Ratings is a website that allows community ratings and reviews of Perl modules.
 
     [http://cpanratings.perl.org/d/Dist-Zilla-Plugin-Pinto-Add](http://cpanratings.perl.org/d/Dist-Zilla-Plugin-Pinto-Add)
+
+- CPANTS
+
+    The CPANTS is a website that analyzes the Kwalitee ( code metrics ) of a distribution.
+
+    [http://cpants.perl.org/dist/overview/Dist-Zilla-Plugin-Pinto-Add](http://cpants.perl.org/dist/overview/Dist-Zilla-Plugin-Pinto-Add)
 
 - CPAN Testers
 
@@ -170,13 +176,26 @@ in addition to those websites please use your favorite search engine to discover
 
     [http://deps.cpantesters.org/?module=Dist::Zilla::Plugin::Pinto::Add](http://deps.cpantesters.org/?module=Dist::Zilla::Plugin::Pinto::Add)
 
+## Internet Relay Chat
+
+You can get live help by using IRC ( Internet Relay Chat ). If you don't know what IRC is,
+please read this excellent guide: [http://en.wikipedia.org/wiki/Internet\_Relay\_Chat](http://en.wikipedia.org/wiki/Internet\_Relay\_Chat). Please
+be courteous and patient when talking to us, as we might be busy or sleeping! You can join
+those networks/channels and get help:
+
+- irc.perl.org
+
+    You can connect to the server at 'irc.perl.org' and join this channel: \#pinto then talk to this person for help: thaljef.
+
 ## Bugs / Feature Requests
 
 [https://github.com/thaljef/Dist-Zilla-Plugin-Pinto-Add/issues](https://github.com/thaljef/Dist-Zilla-Plugin-Pinto-Add/issues)
 
 ## Source Code
 
-
+The code is open to the world, and available for you to hack on. Please feel free to browse it and play
+with it, or whatever. If you want to contribute patches, please send me a diff or prod me to pull
+from your repository :)
 
 [https://github.com/thaljef/Dist-Zilla-Plugin-Pinto-Add](https://github.com/thaljef/Dist-Zilla-Plugin-Pinto-Add)
 
