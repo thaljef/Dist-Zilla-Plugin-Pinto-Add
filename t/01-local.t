@@ -53,7 +53,7 @@ sub build_tzil {
 
   my $t     = Pinto::Tester->new;
   my $root  = $t->pinto->root->stringify;
-  my $tzil  = build_tzil( ['Pinto::Add' => {root    => $root, 
+  my $tzil  = build_tzil( ['Pinto::Add' => {root    => $root,
                                             pauserc => ''}] );
   $tzil->release;
 
@@ -88,7 +88,8 @@ sub build_tzil {
 
   my $t     = Pinto::Tester->new;
   my $root  = $t->pinto->root->stringify;
-  my $tzil  = build_tzil( ['Pinto::Add' => {root => $root, pauserc => $pause_file}] );
+  my $tzil  = build_tzil( ['Pinto::Add' => {root    => $root,
+                                            pauserc => $pause_file}] );
 
   $tzil->release;
 
@@ -101,7 +102,8 @@ sub build_tzil {
 {
   my $t     = Pinto::Tester->new;
   my $root  = $t->pinto->root->stringify;
-  my $tzil  = build_tzil( ['Pinto::Add' => {root => $root, author => 'AUTHORID'}] );
+  my $tzil  = build_tzil( ['Pinto::Add' => {root   => $root,
+                                            author => 'AUTHORID'}] );
 
   $tzil->release;
 
@@ -121,7 +123,7 @@ sub build_tzil {
 
   my $t     = Pinto::Tester->new;
   my $root  = $t->pinto->root->stringify;
-  my $tzil  = build_tzil( ['Pinto::Add' => { root => $root,
+  my $tzil  = build_tzil( ['Pinto::Add' => { root         => $root,
                                              authenticate => 1}] );
 
   $tzil->chrome->set_response_for('Pinto username: ', 'myusername');
@@ -146,7 +148,7 @@ sub build_tzil {
 
   my $t     = Pinto::Tester->new;
   my $root  = $t->pinto->root->stringify;
-  my $tzil  = build_tzil( ['Pinto::Add' => { root => $root,
+  my $tzil  = build_tzil( ['Pinto::Add' => { root     => $root,
                                              username => 'myusername',
                                              password => 'mypassword',
                                              authenticate => 1}] );
@@ -162,7 +164,7 @@ sub build_tzil {
 {
   my $t     = Pinto::Tester->new;
   my $root  = $t->pinto->root->stringify;
-  my $tzil  = build_tzil( ['Pinto::Add' => { root => $root,
+  my $tzil  = build_tzil( ['Pinto::Add' => { root     => $root,
                                              username => 'myusername',
                                              authenticate => 1}] );
 
@@ -176,9 +178,9 @@ sub build_tzil {
 
 {
   my ($t1, $t2)  = map { Pinto::Tester->new } (1,2);
-  my ($root1, $root2) = map { $_->root } ($t1, $t2);
+  my ($root1, $root2) = map { $_->root->stringify } ($t1, $t2);
 
-  my $tzil  = build_tzil( ['Pinto::Add' => { root => [$root1, $root2],
+  my $tzil  = build_tzil( ['Pinto::Add' => { root   => [$root1, $root2],
                                              author => 'AUTHORID' }] );
 
   $tzil->release;
@@ -194,12 +196,12 @@ sub build_tzil {
 
   diag("You will see some warnings here.  Do not be alarmed.");
 
-  my ($t1, $t2)  = map { Pinto::Tester->new } (1,2);
-  my ($root1, $root2) = map { $_->root } ($t1, $t2);
+  my ($t1, $t2) = map { Pinto::Tester->new } (1,2);
+  my ($root1, $root2) = map { $_->root->stringify } ($t1, $t2);
 
   $t2->pinto->repo->lock('EX');
 
-  my $tzil  = build_tzil( ['Pinto::Add' => { root => [$root1, $root2],
+  my $tzil  = build_tzil( ['Pinto::Add' => { root   => [$root1, $root2],
                                              author => 'AUTHORID' }] );
 
   local $Pinto::Locker::LOCKFILE_TIMEOUT = 5;
@@ -220,11 +222,11 @@ sub build_tzil {
   diag("You will see some warnings here.  Do not be alarmed.");
 
   my ($t1, $t2) = map { Pinto::Tester->new } (1,2);
-  my ($root1, $root2) = map { $_->root } ($t1, $t2);
+  my ($root1, $root2) = map { $_->root->stringify } ($t1, $t2);
 
   $t2->pinto->repo->lock('EX');
 
-  my $tzil  = build_tzil( ['Pinto::Add' => { root => [$root1, $root2],
+  my $tzil  = build_tzil( ['Pinto::Add' => { root   => [$root1, $root2],
                                              author => 'AUTHORID' }] );
 
   local $Pinto::Locker::LOCKFILE_TIMEOUT = 5;
