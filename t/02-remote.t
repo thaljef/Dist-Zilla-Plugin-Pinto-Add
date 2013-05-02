@@ -58,8 +58,8 @@ sub build_tzil {
   my $t = Pinto::Server::Tester->new;
   $t->start_server;
 
-  my $root  = $t->server_url;
-  my $tzil  = build_tzil( ['Pinto::Add' => {root    => $root, 
+  my $root  = $t->server_url->as_string;
+  my $tzil  = build_tzil( ['Pinto::Add' => {root    => $root,
                                             pauserc => ''}] );
   $tzil->release;
 
@@ -74,11 +74,11 @@ sub build_tzil {
   my $t  = Pinto::Server::Tester->new;
   $t->start_server;
 
-  $t->run_ok('New', {stack => 'test', message => 'New stack'});
+  $t->run_ok('New', {stack => 'test'});
 
-  my $root  = $t->pinto->root->stringify;
-  my $tzil  = build_tzil( ['Pinto::Add' => {root => $root,
-                                            stack => 'test',
+  my $root  = $t->server_url->as_string;
+  my $tzil  = build_tzil( ['Pinto::Add' => {root    => $root,
+                                            stack   => 'test',
                                             pauserc => ''}] );
   $tzil->release;
 
@@ -96,8 +96,9 @@ sub build_tzil {
   my $t = Pinto::Server::Tester->new;
   $t->start_server;
 
-  my $root  = $t->server_url;
-  my $tzil  = build_tzil( ['Pinto::Add' => {root => $root, pauserc => $pause_file}] );
+  my $root  = $t->server_url->as_string;
+  my $tzil  = build_tzil( ['Pinto::Add' => {root    => $root,
+                                            pauserc => $pause_file}] );
 
   $tzil->release;
 
@@ -111,8 +112,9 @@ sub build_tzil {
   my $t = Pinto::Server::Tester->new;
   $t->start_server;
 
-  my $root  = $t->server_url;
-  my $tzil  = build_tzil( ['Pinto::Add' => {root => $root, author => 'AUTHORID'}] );
+  my $root  = $t->server_url->as_string;
+  my $tzil  = build_tzil( ['Pinto::Add' => {root   => $root,
+                                            author => 'AUTHORID'}] );
 
   $tzil->release;
 
@@ -126,8 +128,8 @@ sub build_tzil {
   my ($t1, $t2) = map {Pinto::Server::Tester->new} (1,2);
   $_->start_server for ($t1, $t2);
 
-  my ($root1, $root2) = map { $_->server_url } ($t1, $t2);
-  my $tzil  = build_tzil( ['Pinto::Add' => { root => [$root1, $root2],
+  my ($root1, $root2) = map { $_->server_url->as_string } ($t1, $t2);
+  my $tzil  = build_tzil( ['Pinto::Add' => { root   => [$root1, $root2],
                                              author => 'AUTHORID' }] );
 
   $tzil->release;
@@ -150,8 +152,8 @@ sub build_tzil {
 
   $t2->pinto->repo->lock('EX'); # $t2 is now unavailable!
 
-  my ($root1, $root2) = map { $_->server_url } ($t1, $t2);
-  my $tzil  = build_tzil( ['Pinto::Add' => { root => [$root1, $root2],
+  my ($root1, $root2) = map { $_->server_url->as_string } ($t1, $t2);
+  my $tzil  = build_tzil( ['Pinto::Add' => { root   => [$root1, $root2],
                                              author => 'AUTHORID' }] );
 
   my $prompt = "repository at $root2 is not available.  Abort the rest of the release?";
@@ -177,8 +179,8 @@ sub build_tzil {
 
   $t2->pinto->repo->lock('EX'); # $t2 is now unavailable!
 
-  my ($root1, $root2) = map { $_->server_url } ($t1, $t2);
-  my $tzil  = build_tzil( ['Pinto::Add' => { root => [$root1, $root2],
+  my ($root1, $root2) = map { $_->server_url->as_string } ($t1, $t2);
+  my $tzil  = build_tzil( ['Pinto::Add' => { root   => [$root1, $root2],
                                              author => 'AUTHORID' }] );
 
   my $prompt = "repository at $root2 is not available.  Abort the rest of the release?";
