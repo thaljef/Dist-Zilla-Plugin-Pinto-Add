@@ -1,5 +1,17 @@
 {{$NEXT}}
 
+    Updated to be compatible with Pinto 0.082 or newer.  Now that
+    Pinto ships with Pinto::Remote, you no longer have to choose
+    which to install.
+
+    However, I've tried to rig it up so that you can install this
+    module in PERL5LIB along with all your other Dzil plugins, whilst
+    using the libraries from a stand-alone Pinto that is installed
+    in PINTO_HOME.
+
+    I'm not sure if this will work out.  Please let me know about
+    your experiences.
+
 0.046     2012-08-13 17:21:31 America/Los_Angeles
 
     Now requires Pinto-0.46 or Pinto::Remote-0.046.  These are
