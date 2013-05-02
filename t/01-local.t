@@ -11,7 +11,6 @@ use File::Temp;
 use File::Path;
 use Class::Load;
 use Dist::Zilla::Tester;
-use Dist::Zilla::Plugin::Pinto::Add;
 
 no warnings qw(redefine once);
 
@@ -30,6 +29,12 @@ plan skip_all => 'Pinto::Tester required' if not $has_pinto_tester;
 
 my $has_pinto = Class::Load::try_load_class('Pinto');
 plan skip_all => 'Pinto required' if not $has_pinto;
+
+
+#------------------------------------------------------------------------------
+# Most load this *after* checking to see if we have Pinto and Pinto::Tester
+
+use_ok('Dist::Zilla::Plugin::Pinto::Add');
 
 #------------------------------------------------------------------------------
 # TODO: Most of 01-remote.t and 02-remote.t are identical.  The only difference
