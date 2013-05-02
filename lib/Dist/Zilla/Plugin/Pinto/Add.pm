@@ -2,6 +2,25 @@
 
 package Dist::Zilla::Plugin::Pinto::Add;
 
+#------------------------------------------------------------------------------
+# If Pinto has been installed as a stand-alone application into the
+# PINTO_HOME directory, then we should load all libraries from there.
+
+BEGIN {
+
+    my $home_var = 'PINTO_HOME';
+    my $home_dir = $ENV{PINTO_HOME};
+
+    if ($home_dir) {
+        require File::Spec;
+        my $lib_dir = File::Spec->catfile($home_dir, qw(lib perl5));
+        die "$home_var ($home_dir) does not exist!\n" unless -e $home_dir;
+        eval qq{use lib '$lib_dir'; 1} or die $@; ## no critic (Eval)
+    }
+}
+
+#------------------------------------------------------------------------------
+
 use Moose;
 use Moose::Util::TypeConstraints;
 use MooseX::Types::Moose qw(Str ArrayRef Bool);
@@ -232,10 +251,13 @@ __END__
 Dist::Zilla::Plugin::Pinto::Add is a release-stage plugin that
 will add your distribution to a local or remote L<Pinto> repository.
 
-B<IMPORTANT:> You'll need to install L<Pinto>, or L<Pinto::Remote>, or
-both, depending on whether you're going to release to a local or
-remote repository.  Both of those modules ship separately to from this
-module to minimize the dependency stack.
+B<IMPORTANT:> You will need to install L<Pinto> to make this plugin
+work.  It ships separately so you can decide how you want to install
+it.  I recommend installing Pinto as a stand-alone application as
+described in L<Pinto::Manual::Installing> and then setting the
+C<PINTO_HOME> environment variable.  Or you can install Pinto from
+CPAN using the usual tools.  Either way, this plugin should just do
+the right thing to load the necessary modules.
 
 Before releasing, L<Dist::Zilla::Plugin::Pinto::Add> will check if the
 repository is responding.  If not, you'll be prompted whether to abort
@@ -333,7 +355,7 @@ F<dist.ini> file.  In that case, the remaining attributes
 (e.g. C<stack>, C<author>, C<authenticate>) will apply to all the
 repositories.
 
-However, the recommended way to release multiple to repositories is to
+However, the recommended way to release to multiple repositories is to
 have multiple C<[Pinto::Add]> blocks in your F<dist.ini> file.  This
 allows you to set attributes for each repository independently (at the
 expense of possibly having to duplicating some information).
