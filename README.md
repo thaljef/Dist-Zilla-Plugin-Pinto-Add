@@ -4,7 +4,7 @@ Dist::Zilla::Plugin::Pinto::Add - Ship your dist to a Pinto repository
 
 # VERSION
 
-version 0.083
+version 0.082
 
 # SYNOPSIS
 
