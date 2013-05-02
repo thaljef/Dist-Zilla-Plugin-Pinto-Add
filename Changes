@@ -1,7 +1,5 @@
 {{$NEXT}}
 
-0.082     2013-05-02 14:55:47 America/Los_Angeles
-
     Updated to be compatible with Pinto 0.082 or newer.  Now that
     Pinto ships with Pinto::Remote, you no longer have to choose
     which to install.
