@@ -129,10 +129,10 @@ has pintos => (
 sub _build_pintos {
     my ($self) = @_;
 
-    # TODO: Need more control over the minimum Pinto or
-    # Pinto::Remote version that is required.
-    my $version = $self->VERSION;
-    my $options = { -version => $version };
+    # TODO: Need make the minimum Pinto version 
+    # externally configurable at author-time
+    my $min_pinto_version = 0.082;
+    my $options = { -version => $min_pinto_version };
     my @pintos;
 
     for my $root ($self->root) {
@@ -143,7 +143,7 @@ sub _build_pintos {
             ? ( username => $self->username, password => $self->password )
             : ();
 
-        $self->log_fatal("You must install $class-$version to release to a $type repository: $@")
+        $self->log_fatal("You must install $class-$min_pinto_version to release to a $type repository: $@")
             if not eval { Class::Load::load_class($class, $options); 1 };
 
         my $pinto = try   { $class->new(root => $root, %auth_args) }

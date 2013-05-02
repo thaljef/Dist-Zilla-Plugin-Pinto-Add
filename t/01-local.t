@@ -3,6 +3,25 @@
 use strict;
 use warnings;
 
+#------------------------------------------------------------------------------
+# If Pinto has been installed as a stand-alone application into the
+# PINTO_HOME directory, then we should load all libraries from there.
+
+BEGIN {
+
+    my $home_var = 'PINTO_HOME';
+    my $home_dir = $ENV{PINTO_HOME};
+
+    if ($home_dir) {
+        require File::Spec;
+        my $lib_dir = File::Spec->catfile($home_dir, qw(lib perl5));
+        die "$home_var ($home_dir) does not exist!\n" unless -e $home_dir;
+        eval qq{use lib '$lib_dir'; 1} or die $@; ## no critic (Eval)
+    }
+}
+
+#------------------------------------------------------------------------------
+
 use Test::More;
 use Test::DZil;
 use Test::Exception;
@@ -34,7 +53,8 @@ plan skip_all => 'Pinto required' if not $has_pinto;
 #------------------------------------------------------------------------------
 # Most load this *after* checking to see if we have Pinto and Pinto::Tester
 
-use_ok('Dist::Zilla::Plugin::Pinto::Add');
+use_ok('Dist::Zilla::Plugin::Pinto::Add')
+  or BAIL_OUT('Does not compile, do not bother testing the rest');
 
 #------------------------------------------------------------------------------
 # TODO: Most of 01-remote.t and 02-remote.t are identical.  The only difference
