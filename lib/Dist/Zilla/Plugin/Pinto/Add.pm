@@ -131,7 +131,7 @@ sub _build_pintos {
 
     # TODO: Need make the minimum Pinto version 
     # externally configurable at author-time
-    my $min_pinto_version = 0.082;
+    my $min_pinto_version = 0.091;
     my $options = { -version => $min_pinto_version };
     my @pintos;
 
