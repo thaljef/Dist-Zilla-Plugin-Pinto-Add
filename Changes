@@ -1,5 +1,10 @@
 {{$NEXT}}
 
+    [BUG FIXES]
+
+    - Also requires Pinto 0.091 or later at runtime.  I should have
+    done this in the last release.
+
 0.084     2014-01-13 14:39:08 America/Los_Angeles
 
     [BUG FIXES]
