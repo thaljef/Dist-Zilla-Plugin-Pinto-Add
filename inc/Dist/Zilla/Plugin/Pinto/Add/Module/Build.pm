@@ -10,7 +10,7 @@ use base 'Module::Build::CleanInstall';
 
 # TODO: Need make the minimum Pinto version 
 # externally configurable at author-time
-my $min_pinto_version = 0.082;
+my $min_pinto_version = 0.091;
 
 sub new {
   my ($class, %args) = @_;
