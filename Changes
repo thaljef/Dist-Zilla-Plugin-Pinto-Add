@@ -1,5 +1,7 @@
 {{$NEXT}}
 
+0.084     2014-01-13 14:39:08 America/Los_Angeles
+
     [BUG FIXES]
 
     - Remote repository URLs may now use HTTPS.  Requires Pinto 0.091
