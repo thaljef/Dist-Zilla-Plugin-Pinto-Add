@@ -1,5 +1,14 @@
 {{$NEXT}}
 
+    [INCOMPATIBLE CHANGES]
+
+    - The "no_recurse" configuration option has been changed to
+    "recurse" which can be either true or false.  If not set, the
+    default recursive behavior is determined by the repository 
+    configuration.  If you were using the the "no_recurse" option 
+    before, you'll need to replace it with "recurse = 0" in your 
+    dist.ini file.
+
 0.085     2014-01-13 14:48:42 America/Los_Angeles
 
     [BUG FIXES]
