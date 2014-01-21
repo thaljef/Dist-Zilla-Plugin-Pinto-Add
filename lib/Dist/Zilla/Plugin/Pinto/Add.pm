@@ -69,10 +69,10 @@ has author => (
 );
 
 
-has no_recurse => (
+has recurse => (
     is         => 'ro',
     isa        => Bool,
-    default    => 0,
+    predicate  => 'has_recurse',
 );
 
 
@@ -129,7 +129,7 @@ has pintos => (
 sub _build_pintos {
     my ($self) = @_;
 
-    # TODO: Need make the minimum Pinto version 
+    # TODO: Need make the minimum Pinto version
     # externally configurable at author-time
     my $min_pinto_version = 0.091;
     my $options = { -version => $min_pinto_version };
@@ -205,11 +205,15 @@ sub release {
         my $root  = $pinto->root;
         $self->log("adding $archive to repository at $root");
 
-        my $result = $pinto->run( 'Add', archives   => [ $archive->stringify ],
-                                         author     => $self->author,
-                                         stack      => $self->stack,
-                                         no_recurse => $self->no_recurse,
-                                         message    => "Added $archive" );
+        my %args = (
+            author   => $self->author,
+            stack    => $self->stack,
+            archives => [ $archive->stringify ],
+            message  => "Added " . $archive->basename,
+            $self->has_recurse ? (recurse => $self->recurse) : (),
+        );
+
+        my $result = $pinto->run( Add => %args );
 
         $result->was_successful ? $self->log("added $archive to $root ok")
                                 : $self->log_fatal("failed to add $archive to $root: $result");
@@ -238,7 +242,7 @@ __END__
   root          = http://pinto.my-host      ; at lease one root is required
   author        = YOU                       ; optional. defaults to username
   stack         = stack_name                ; optional. defaults to undef
-  no_recurse    = 1                         ; optional. defaults to 0
+  recurse       = 0                         ; optional. defaults to 1
   authenticate  = 1                         ; optional. defaults to 0
   username      = you                       ; optional. will prompt if needed
   password      = secret                    ; optional. will prompt if needed
@@ -306,11 +310,13 @@ This specifies which stack in the repository to put the released
 packages into.  Defaults to C<undef>, which means to use whatever
 stack is currently defined as the default by the repository.
 
-=item no_recurse = 0|1
+=item recurse = 0|1
 
-If true, prevents Pinto from recursively importing all the
-distributions required to satisfy the prerequisites for the
-distribution you are adding.  Default is 0.
+If true, Pinto will recursively pull all the distributions required to
+satisfy the prerequisites for the distribution you are adding.  If
+false, Pinto will add the distribution only.  If not set at all, the
+default recursive behavior is determined by the repository
+configuration.
 
 =item authenticate = 0|1
 
