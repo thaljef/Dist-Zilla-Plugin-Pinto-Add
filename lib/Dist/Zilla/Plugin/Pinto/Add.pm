@@ -204,6 +204,7 @@ sub release {
             $self->has_recurse ? (recurse => $self->recurse) : (),
         );
 
+        local $ENV{PINTO_PAGER} = local $ENV{PAGER} = undef;
         my $result = $pinto->run( Add => %args );
 
         $result->was_successful ? $self->log("added $archive to $root ok")
