@@ -64,7 +64,7 @@ has root => (
 has author => (
     is         => 'ro',
     isa        => AuthorID,
-    default    => sub { uc ($_[0]->pausecfg->{user} || '') || current_author_id },
+    default    => sub { uc (shift->pausecfg->{user} || '') || current_author_id },
     lazy       => 1,
 );
 
@@ -94,11 +94,7 @@ has username => (
     is   => 'ro',
     isa  => Str,
     lazy => 1,
-    required => 1,
-    default  => sub {
-        my ($self) = @_;
-        return $self->zilla->chrome->prompt_str('Pinto username: ', { default => current_username });
-    },
+    default  => sub { shift->zilla->chrome->prompt_str('Pinto username: ', { default => current_username }) },
 );
 
 
@@ -106,11 +102,7 @@ has password => (
     is   => 'ro',
     isa  => Str,
     lazy => 1,
-    required => 1,
-    default  => sub {
-        my ($self) = @_;
-        return $self->zilla->chrome->prompt_str('Pinto password: ', { noecho => 1 });
-    },
+    default  => sub { shift->zilla->chrome->prompt_str('Pinto password: ', { noecho => 1 }) },
 );
 
 
@@ -138,8 +130,7 @@ sub _build_pintos {
     for my $root ($self->root) {
         my ($type, $class)  = is_remote_repo($root) ? ('remote', 'Pinto::Remote')
                                                     : ('local',  'Pinto');
-
-        my %auth_args = $self->authenticate && $class->isa('Pinto::Remote')
+        my %auth_args = $self->authenticate && $class eq 'Pinto::Remote'
             ? ( username => $self->username, password => $self->password )
             : ();
 
