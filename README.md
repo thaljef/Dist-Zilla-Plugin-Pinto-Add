@@ -13,7 +13,7 @@ version 0.085
     root          = http://pinto.my-host      ; at lease one root is required
     author        = YOU                       ; optional. defaults to username
     stack         = stack_name                ; optional. defaults to undef
-    no_recurse    = 1                         ; optional. defaults to 0
+    recurse       = 0                         ; optional. defaults to 1
     authenticate  = 1                         ; optional. defaults to 0
     username      = you                       ; optional. will prompt if needed
     password      = secret                    ; optional. will prompt if needed
@@ -24,17 +24,17 @@ version 0.085
 # DESCRIPTION
 
 Dist::Zilla::Plugin::Pinto::Add is a release-stage plugin that
-will add your distribution to a local or remote [Pinto](http://search.cpan.org/perldoc?Pinto) repository.
+will add your distribution to a local or remote [Pinto](https://metacpan.org/pod/Pinto) repository.
 
-__IMPORTANT:__ You will need to install [Pinto](http://search.cpan.org/perldoc?Pinto) to make this plugin
+__IMPORTANT:__ You will need to install [Pinto](https://metacpan.org/pod/Pinto) to make this plugin
 work.  It ships separately so you can decide how you want to install
 it.  I recommend installing Pinto as a stand-alone application as
-described in [Pinto::Manual::Installing](http://search.cpan.org/perldoc?Pinto::Manual::Installing) and then setting the
+described in [Pinto::Manual::Installing](https://metacpan.org/pod/Pinto::Manual::Installing) and then setting the
 `PINTO_HOME` environment variable.  Or you can install Pinto from
 CPAN using the usual tools.  Either way, this plugin should just do
 the right thing to load the necessary modules.
 
-Before releasing, [Dist::Zilla::Plugin::Pinto::Add](http://search.cpan.org/perldoc?Dist::Zilla::Plugin::Pinto::Add) will check if the
+Before releasing, [Dist::Zilla::Plugin::Pinto::Add](https://metacpan.org/pod/Dist::Zilla::Plugin::Pinto::Add) will check if the
 repository is responding.  If not, you'll be prompted whether to abort
 the rest of the release.
 
@@ -54,9 +54,9 @@ distribution:
     This identifies the root of the Pinto repository you want to release
     to.  If `REPOSITORY` looks like a remote URL (i.e. it starts with
     "http://") then your distribution will be shipped with
-    [Pinto::Remote](http://search.cpan.org/perldoc?Pinto::Remote).  Otherwise, the `REPOSITORY` is assumed to be a
+    [Pinto::Remote](https://metacpan.org/pod/Pinto::Remote).  Otherwise, the `REPOSITORY` is assumed to be a
     path to a local repository directory and your distribution will be
-    shipped with [Pinto](http://search.cpan.org/perldoc?Pinto).
+    shipped with [Pinto](https://metacpan.org/pod/Pinto).
 
     At least one `root` is required.  You can release to multiple
     repositories by specifying the `root` attribute multiple times.  If
@@ -79,11 +79,11 @@ distribution:
     packages into.  Defaults to `undef`, which means to use whatever
     stack is currently defined as the default by the repository.
 
-- no\_recurse = 0|1
+- recurse = 0|1
 
-    If true, prevents Pinto from recursively importing all the
+    If false, Pinto will not recursively pull all the
     distributions required to satisfy the prerequisites for the
-    distribution you are adding.  Default is 0.
+    distribution you are adding.  Default is 1.
 
 - authenticate = 0|1
 
@@ -179,7 +179,7 @@ in addition to those websites please use your favorite search engine to discover
 ## Internet Relay Chat
 
 You can get live help by using IRC ( Internet Relay Chat ). If you don't know what IRC is,
-please read this excellent guide: [http://en.wikipedia.org/wiki/Internet\_Relay\_Chat](http://en.wikipedia.org/wiki/Internet\_Relay\_Chat). Please
+please read this excellent guide: [http://en.wikipedia.org/wiki/Internet_Relay_Chat](http://en.wikipedia.org/wiki/Internet_Relay_Chat). Please
 be courteous and patient when talking to us, as we might be busy or sleeping! You can join
 those networks/channels and get help:
 
