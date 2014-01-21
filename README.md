@@ -4,7 +4,7 @@ Dist::Zilla::Plugin::Pinto::Add - Ship your dist to a Pinto repository
 
 # VERSION
 
-version 0.085
+version 0.086
 
 # SYNOPSIS
 
@@ -81,9 +81,11 @@ distribution:
 
 - recurse = 0|1
 
-    If false, Pinto will not recursively pull all the
-    distributions required to satisfy the prerequisites for the
-    distribution you are adding.  Default is 1.
+    If true, Pinto will recursively pull all the distributions required to
+    satisfy the prerequisites for the distribution you are adding.  If
+    false, Pinto will add the distribution only.  If not set at all, the
+    default recursive behavior is determined by the repository
+    configuration.
 
 - authenticate = 0|1
 
