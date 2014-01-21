@@ -9,6 +9,11 @@
     before, you'll need to replace it with "recurse = 0" in your 
     dist.ini file.
 
+   [BUG FIXES]
+
+   - The plugin was ignoring your authentication credentials when
+   using a remote repository [GitHub #7].  Thanks @hstaugaard.
+
 0.085     2014-01-13 14:48:42 America/Los_Angeles
 
     [BUG FIXES]
