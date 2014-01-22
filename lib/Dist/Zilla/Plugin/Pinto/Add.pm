@@ -65,7 +65,7 @@ has username => (
 has password => (
     is        => 'ro',
     isa       => Str,
-    default   => sub { $ENV{PINTO_PASSWORD} || shift->zilla->chrome->prompt_str('Pinto password: ', { noecho => 1 }) },
+    default   => sub { $ENV{PINTO_PASSWORD} || shift->_ask_for_password },
     lazy      => 1,
 );
 
@@ -130,7 +130,7 @@ sub before_release {
             $self->authenticate ? (-password => $self->password) : (),
         );
 
-        $self->log("checking if pinto repository at $root is available");
+        $self->log("checking if repository at $root is available");
         my ($ok, $output) = $self->RUN_PINTO( nop => @args );
 
         if (not $ok) {
@@ -143,7 +143,7 @@ sub before_release {
         push @live_roots, $root;
     }
     
-    $self->log_fatal('none of your pinto repositories are available') if not @live_roots;
+    $self->log_fatal('none of your repositories are available') if not @live_roots;
     $self->_set_live_roots(\@live_roots);
 
     return $self;
@@ -180,6 +180,16 @@ sub release {
     return 1;
 }
 
+#------------------------------------------------------------------------------
+
+sub _ask_for_password {
+    my ($self) = @_;
+
+    my $prompt = sprintf 'Pinto password for %s: ', $self->username; 
+    my $password = $self->zilla->chrome->prompt_str($prompt, { noecho => 1 });
+
+    return $password;
+}
 
 #------------------------------------------------------------------------------
 
@@ -195,7 +205,6 @@ sub RUN_PINTO {
     my @cmd = ($self->pinto_exe, @args);
     my $timeout = IPC::Run::timeout(300);
     my $ok = IPC::Run::run(\@cmd, \$input, \$output, \$output, $timeout);
-    $self->log("Command (pinto @args) failed: $!") if not $ok;
     return ($ok, $output);
 }
 

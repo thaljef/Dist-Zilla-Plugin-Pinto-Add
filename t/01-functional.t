@@ -7,11 +7,11 @@ use Test::More;
 use Test::DZil;
 use Test::Exception;
 
+use IPC::Run;
+use File::Path;
 use File::Which;
-use Class::Load;
+use File::Temp;
 use Dist::Zilla::Tester;
-
-no warnings qw(redefine once);
 
 #------------------------------------------------------------------------------
 # Much of this test was deduced from:
@@ -23,19 +23,20 @@ no warnings qw(redefine once);
 # D::Z.
 #------------------------------------------------------------------------------
 
-my $has_pinto_tester = Class::Load::try_load_class('Pinto::Tester');
-plan skip_all => 'Pinto::Tester required' if not $has_pinto_tester;
 
-my $has_pinto_server_tester = Class::Load::try_load_class('Pinto::Server::Tester');
-plan skip_all => 'Pinto::Server::Tester required' if not $has_pinto_server_tester;
+my $pinto_exe = File::Which::which('pinto');
+plan skip_all => 'pinto (executable) required' if not $pinto_exe;
 
-my $has_pinto = File::Which::which('pinto');
-plan skip_all => 'pinto (executable) required' if not $has_pinto;
+my $pintod_exe = File::Which::which('pintod');
+plan skip_all => 'pintod (executable) required' if not $pintod_exe;
 
-my $has_pintod = File::Which::which('pintod');
-plan skip_all => 'pintod (executable) required' if not $has_pintod;
+my $archive = 'DZT-Sample-0.001.tar.gz';
 
 my $plugin = 'Pinto::Add';
+
+#------------------------------------------------------------------------------
+
+diag 'These tests are slow.  Be patient.';
 
 #------------------------------------------------------------------------------
 
@@ -51,175 +52,200 @@ sub build_tzil {
 
 #------------------------------------------------------------------------------
 
-sub build_pinto_tester {
+sub build_repo {
     my ($class, @args) = @_;
 
-    my $tester = $class->new(@args);
-    $tester->start_server if $class eq 'Pinto::Server::Tester';
-    diag "Tester root is $tester";
-
-    return $tester;
+    my $dir = File::Temp::tempdir(CLEANUP => 1);
+    RUN($pinto_exe, -root => $dir, 'init');
+    return $dir;
 }
 
 #-----------------------------------------------------------------------------
-# Run all tests with a local repo, then run again with remote repo
 
-for my $class (qw(Pinto::Tester Pinto::Server::Tester)) {
+sub RUN {
+    my @cmd = @_;
+    
+    s/^-/--/ for @cmd;
 
-    local $ENV{PINTO_AUTHOR_ID} = 'AUTHOR';
+    my $input = my $output = '';
+    my $timeout = IPC::Run::timeout(10);
 
-    subtest "Basic release ($class)" => sub {
+    note "Running command: @cmd";
+    my $ok = IPC::Run::run(\@cmd, $output, $output, $input, $timeout);
+    diag "Command failed (@cmd): $output" if not $ok;
 
-        my $t    = build_pinto_tester($class);
-        my $tzil = build_tzil( [$plugin => {root => "$t"}] );
-
-        $tzil->release;
-
-        $t->registration_ok("AUTHOR/DZT-Sample-0.001/DZT::Sample~0.001/");
-    };
-
-
-    #-------------------------------------------------------------------------
-
-    subtest "Release to stack ($class)" => sub {
-
-        my $t = build_pinto_tester($class);
-        $t->run_ok(New => {stack => 'test'});
-
-        my $tzil = build_tzil( [$plugin => {root  => "$t",
-            stack => 'test'}] );
-        $tzil->release;
-
-        $t->registration_ok("AUTHOR/DZT-Sample-0.001/DZT::Sample~0.001/test");
-    };
-
-    #-------------------------------------------------------------------------
-
-    subtest "Get author from dist.ini ($class)" => sub {
-
-        my $t    =  build_pinto_tester($class);
-        my $tzil = build_tzil( [$plugin => {root   => "$t",
-            author => 'ME'}] );
-
-        $tzil->release;
-
-        $t->registration_ok("ME/DZT-Sample-0.001/DZT::Sample~0.001/");
-    };
-
-    #-----------------------------------------------------------------------------
-
-    subtest "Get username/password from dist.ini ($class)" => sub {
-
-        my ($username, $password);
-
-        # Intercept release() method and record some attributes
-        local *Dist::Zilla::Plugin::Pinto::Add::release = sub {
-             ($username, $password) = ($_[0]->username, $_[0]->password);
-        };
-
-        my $t     = build_pinto_tester($class);
-        my $tzil  = build_tzil( [$plugin => { root     => "$t",
-                                              username => 'myusername',
-                                              password => 'mypassword',
-                                              authenticate => 1 }] );
-        $tzil->release;
-
-        is $password, 'mypassword', 'got password from dist.ini';
-        is $username, 'myusername', 'got username from dist.ini';
-    };
-
-    #-----------------------------------------------------------------------------
-
-    subtest "Prompt for password ($class)" => sub {
-
-        my ($username, $password);
-
-        # Intercept release() method and record some attributes
-        local *Dist::Zilla::Plugin::Pinto::Add::release = sub {
-            ($username, $password) = ($_[0]->username, $_[0]->password);
-        };
-
-        my $t     = build_pinto_tester($class);
-        my $root  = $t->to_string;
-        my $tzil  = build_tzil( [$plugin => { root         => "$t",
-                                              authenticate => 1}] );
-
-        $tzil->chrome->set_response_for('Pinto password: ', 'mypassword');
-
-        $tzil->release;
-
-        is $password, 'mypassword', 'got password from prompt';
-    };
-
-    #-----------------------------------------------------------------------------
-
-    subtest "Multiple repositories ($class)" => sub {
-
-        my ($t1, $t2)       = map { build_pinto_tester($class) } (1,2);
-        my ($root1, $root2) = map { "$_" } ($t1, $t2);
-        my $roots           = [ $root1, $root2 ];
-
-        my $tzil = build_tzil( [$plugin => { root => $roots }] );
-
-        $tzil->release;
-
-        $t1->registration_ok("AUTHOR/DZT-Sample-0.001/DZT::Sample~0.001/");
-        $t2->registration_ok("AUTHOR/DZT-Sample-0.001/DZT::Sample~0.001/");
-    };
-
-    #-----------------------------------------------------------------------------
-
-    subtest "Repo not repsonding -- so abort ($class)" => sub {
-
-        # So we don't have to wait forever...
-        local $ENV{PINTO_LOCKFILE_TIMEOUT} = 5;
-
-        my ($t1, $t2)       = map { build_pinto_tester($class) } (1,2);
-        my ($root1, $root2) = map { "$_" } ($t1, $t2);
-        my $roots           = [ $root1, $root2 ];
-
-        my $tzil  = build_tzil( [$plugin => { root => $roots }] );
-
-        $t2->pinto->repo->lock('EX'); # $t2 now unavailable
-        throws_ok { $tzil->release } qr/Aborting/;
-
-        $t1->repository_clean_ok;
-        $t2->repository_clean_ok;
-    };
-
-    #-----------------------------------------------------------------------------
-
-    subtest "Repo not responding -- partial release ($class)" => sub {
-
-        # So we don't have to wait forever...
-        local $ENV{PINTO_LOCKFILE_TIMEOUT} = 5;
-
-        my ($t1, $t2)       = map { build_pinto_tester($class) } (1,2);
-        my ($root1, $root2) = map { "$_" } ($t1, $t2);
-        my $roots           = [ $root1, $root2 ];
-
-        my $tzil   = build_tzil( [$plugin => { root   => $roots }] );
-        my $prompt = "repository at $root2 is not available.  Abort release?";
-        $tzil->chrome->set_response_for($prompt, 'N');
-
-        $t2->pinto->repo->lock('EX'); # $t2 now unavailable
-        lives_ok { $tzil->release };
-
-        $t1->registration_ok("AUTHOR/DZT-Sample-0.001/DZT::Sample~0.001/");
-        $t2->repository_clean_ok;
-    };
+    return ($ok, $output);
 }
+
+
+#-----------------------------------------------------------------------------
+
+local $ENV{PINTO_AUTHOR_ID}       = 'AUTHOR';
+local $ENV{PINTO_USERNAME}        = undef;
+local $ENV{PINTO_REPOSITORY_ROOT} = undef;
+
+#-----------------------------------------------------------------------------
+
+subtest "Basic release" => sub {
+
+    my $root = build_repo;
+    my $tzil = build_tzil( [$plugin => {root => $root}] );
+    
+    lives_ok { $tzil->release };
+
+    my $log = join "\n", @{ $tzil->log_messages };
+    like $log, qr/\Qadded $archive to $root\E/;
+};
+
+#-------------------------------------------------------------------------
+
+subtest "Release to a stack" => sub {
+
+    my $root = build_repo;
+    my $stack = 'mystack';
+
+    RUN($pinto_exe, -root => $root, new => $stack);
+    my $tzil = build_tzil( [$plugin => {root  => $root, stack => $stack}] );
+
+    lives_ok{ $tzil->release };
+
+    my $log = join "\n", @{ $tzil->log_messages };
+    like $log, qr/\Qadded $archive to $root\E/;
+};
+
+#-------------------------------------------------------------------------
+
+subtest "No live repos" => sub {
+
+    my $root = '/dev/null';
+    my $tzil = build_tzil( [$plugin => {root  => $root}] );
+
+    my $prompt = "repository at $root is not available.  Abort release?";
+    $tzil->chrome->set_response_for($prompt, 'N');
+
+    my $error = qr/none of your repositories are available/;
+    throws_ok{ $tzil->release } $error;
+        
+    my $log = join "\n", @{ $tzil->log_messages };
+    like $log, qr/\Qchecking if repository at $root is available\E/;
+    like $log, $error;
+};
+
+#-------------------------------------------------------------------------
+
+subtest "Params from ENV" => sub {
+
+    local $ENV{PINTO_REPOSITORY_ROOT} = 'myrepo';
+    local $ENV{PINTO_USERNAME}        = 'user';
+
+    my $tzil = build_tzil( [$plugin => {}] );
+    my $p = $tzil->plugin_named($plugin);
+
+    is $p->root->[0], $ENV{PINTO_REPOSITORY_ROOT};
+    is $p->username,  $ENV{PINTO_USERNAME};
+};
+
+#-------------------------------------------------------------------------
+
+subtest "Params from dist.ini" => sub {
+
+    my $tzil = build_tzil( [$plugin => { root     => 'myrepo',
+                                         author   => 'ME',
+                                         username => 'user',
+                                         password => 'secret',
+                                         recurse  => 0 }] );
+    my $p = $tzil->plugin_named($plugin);
+
+    is $p->root->[0], 'myrepo';
+    is $p->author,    'ME';
+    is $p->username,  'user';
+    is $p->password,  'secret';
+    is $p->recurse,   0;
+
+};
+
+#-----------------------------------------------------------------------------
+
+subtest "Prompt for password" => sub {
+
+    my $user = 'someone';
+    my $pass = 'secret';
+    my $root = build_repo;
+    my $tzil = build_tzil( [$plugin => { root         => $root,
+                                         username     => $user,
+                                         authenticate => 1}] );
+
+    $tzil->chrome->set_response_for("Pinto password for $user: ", $pass);
+    lives_ok{ $tzil->release };
+    
+    my $p = $tzil->plugin_named($plugin);
+    is $p->password, $pass;
+};
+
+#-----------------------------------------------------------------------------
+
+subtest "Multiple repositories" => sub {
+
+    my ($root1, $root2) = map { build_repo() } (1,2);
+    my $roots           = [ $root1, $root2 ];
+
+    my $tzil = build_tzil( [$plugin => { root => $roots }] );
+
+    lives_ok{ $tzil->release };
+
+    my $log = join "\n", @{ $tzil->log_messages };
+    like $log, qr/\Qadded $archive to $root1\E/;
+    like $log, qr/\Qadded $archive to $root2\E/;
+};
+
+#-----------------------------------------------------------------------------
+
+subtest "Repo not repsonding -- so abort" => sub {
+
+    # So we don't have to wait forever...
+    local $ENV{PINTO_LOCKFILE_TIMEOUT} = 5;
+
+    my ($root1, $root2) = (build_repo, '/dev/null');
+    my $roots           = [ $root1, $root2 ];
+
+    my $tzil = build_tzil( [$plugin => { root => $roots }] );
+
+    throws_ok { $tzil->release } qr/Aborting/;
+
+    my $log = join "\n", @{ $tzil->log_messages };
+    unlike $log, qr/\Qadded $archive to $root1\E/;
+    unlike $log, qr/\Qadded $archive to $root2\E/;
+};
+
+#-----------------------------------------------------------------------------
+
+subtest "Repo not responding -- partial release" => sub {
+
+    # So we don't have to wait forever...
+    local $ENV{PINTO_LOCKFILE_TIMEOUT} = 5;
+
+    my ($root1, $root2) = (build_repo, '/dev/null');
+    my $roots           = [ $root1, $root2 ];
+
+    my $tzil   = build_tzil( [$plugin => { root   => $roots }] );
+    my $prompt = "repository at $root2 is not available.  Abort release?";
+    $tzil->chrome->set_response_for($prompt, 'N');
+
+    lives_ok { $tzil->release };
+
+    my $log = join "\n", @{ $tzil->log_messages };
+    like   $log, qr/\Qadded $archive to $root1\E/;
+    unlike $log, qr/\Qadded $archive to $root2\E/;
+};
 
 #-----------------------------------------------------------------------------
 
 done_testing;
 
 #-----------------------------------------------------------------------------
-# Clean up after Test::DZil;
 
-END {
-  require File::Path;
-  eval { File::Path::rmtree('tmp') } if -e 'tmp';
-}
+# Clean up after Test::DZil
+END { eval { File::Path::rmtree('tmp') } if -e 'tmp' }
+
 
 
