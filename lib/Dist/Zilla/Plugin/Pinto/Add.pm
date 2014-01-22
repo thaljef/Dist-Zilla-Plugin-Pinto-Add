@@ -134,8 +134,8 @@ sub before_release {
         my ($ok, $output) = $self->RUN_PINTO( nop => @args );
 
         if (not $ok) {
-            my $msg = "repository at $root is not available.  Abort release?";
-            my $abort  = $self->zilla->chrome->prompt_yn($msg, {default => 'Y'});
+            $self->log("repository at $root is not available");
+            my $abort = $self->zilla->chrome->prompt_yn('Abort release? ', {default => 'Y'});
             $self->log_fatal('Aborting') if $abort; # dies!
             next;
         }

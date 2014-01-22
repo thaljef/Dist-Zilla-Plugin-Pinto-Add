@@ -8,7 +8,6 @@ use Test::DZil;
 use Test::Exception;
 
 use IPC::Run;
-use File::Path;
 use File::Which;
 use File::Temp;
 use Dist::Zilla::Tester;
@@ -26,9 +25,6 @@ use Dist::Zilla::Tester;
 
 my $pinto_exe = File::Which::which('pinto');
 plan skip_all => 'pinto (executable) required' if not $pinto_exe;
-
-my $pintod_exe = File::Which::which('pintod');
-plan skip_all => 'pintod (executable) required' if not $pintod_exe;
 
 my $archive = 'DZT-Sample-0.001.tar.gz';
 
@@ -56,19 +52,19 @@ sub build_repo {
     my ($class, @args) = @_;
 
     my $dir = File::Temp::tempdir(CLEANUP => 1);
-    RUN($pinto_exe, -root => $dir, 'init');
+    run_cmd($pinto_exe, -root => $dir, 'init');
     return $dir;
 }
 
 #-----------------------------------------------------------------------------
 
-sub RUN {
+sub run_cmd {
     my @cmd = @_;
     
     s/^-/--/ for @cmd;
 
     my $input = my $output = '';
-    my $timeout = IPC::Run::timeout(10);
+    my $timeout = IPC::Run::timeout(20);
 
     note "Running command: @cmd";
     my $ok = IPC::Run::run(\@cmd, $output, $output, $input, $timeout);
@@ -104,7 +100,7 @@ subtest "Release to a stack" => sub {
     my $root = build_repo;
     my $stack = 'mystack';
 
-    RUN($pinto_exe, -root => $root, new => $stack);
+    run_cmd($pinto_exe, -root => $root, new => $stack);
     my $tzil = build_tzil( [$plugin => {root  => $root, stack => $stack}] );
 
     lives_ok{ $tzil->release };
@@ -119,13 +115,11 @@ subtest "No live repos" => sub {
 
     my $root = '/dev/null';
     my $tzil = build_tzil( [$plugin => {root  => $root}] );
+    $tzil->chrome->set_response_for('Abort release? ', 'N');
 
-    my $prompt = "repository at $root is not available.  Abort release?";
-    $tzil->chrome->set_response_for($prompt, 'N');
+    throws_ok{ $tzil->release } 
+        my $error = qr/none of your repositories are available/;
 
-    my $error = qr/none of your repositories are available/;
-    throws_ok{ $tzil->release } $error;
-        
     my $log = join "\n", @{ $tzil->log_messages };
     like $log, qr/\Qchecking if repository at $root is available\E/;
     like $log, $error;
@@ -210,11 +204,13 @@ subtest "Repo not repsonding -- so abort" => sub {
 
     my $tzil = build_tzil( [$plugin => { root => $roots }] );
 
-    throws_ok { $tzil->release } qr/Aborting/;
+    throws_ok { $tzil->release } my $error = qr/Aborting/;
 
     my $log = join "\n", @{ $tzil->log_messages };
+    like   $log, qr/\Q$root2 is not available\E/;
     unlike $log, qr/\Qadded $archive to $root1\E/;
     unlike $log, qr/\Qadded $archive to $root2\E/;
+    like   $log, $error;
 };
 
 #-----------------------------------------------------------------------------
@@ -227,13 +223,13 @@ subtest "Repo not responding -- partial release" => sub {
     my ($root1, $root2) = (build_repo, '/dev/null');
     my $roots           = [ $root1, $root2 ];
 
-    my $tzil   = build_tzil( [$plugin => { root   => $roots }] );
-    my $prompt = "repository at $root2 is not available.  Abort release?";
-    $tzil->chrome->set_response_for($prompt, 'N');
+    my $tzil = build_tzil( [$plugin => { root   => $roots }] );
+    $tzil->chrome->set_response_for('Abort release? ', 'N');
 
     lives_ok { $tzil->release };
 
     my $log = join "\n", @{ $tzil->log_messages };
+    like   $log, qr/\Q$root2 is not available\E/;
     like   $log, qr/\Qadded $archive to $root1\E/;
     unlike $log, qr/\Qadded $archive to $root2\E/;
 };
