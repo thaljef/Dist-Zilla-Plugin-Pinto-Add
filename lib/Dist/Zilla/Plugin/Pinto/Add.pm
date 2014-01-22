@@ -102,7 +102,7 @@ our $MINIMUM_PINTO_VERSION = version->parse('0.091');
 sub BUILD {
     my ($self) = @_;
 
-    my ($ok, $output) = $self->RUN_PINTO( -version );
+    my ($ok, $output) = $self->_run_pinto( -version );
     my ($pinto_version) = ($output =~ m/version ([\d\._v]+) /);
 
     $self->log_fatal("unable to parse pinto version from: $output")
@@ -131,7 +131,7 @@ sub before_release {
         );
 
         $self->log("checking if repository at $root is available");
-        my ($ok, $output) = $self->RUN_PINTO( nop => @args );
+        my ($ok, $output) = $self->_run_pinto( nop => @args );
 
         if (not $ok) {
             $self->log("repository at $root is not available");
@@ -171,7 +171,7 @@ sub release {
 
 
         $self->log("adding $archive to repository at $root");
-        my ($ok, $output) = $self->RUN_PINTO( add => @args );
+        my ($ok, $output) = $self->_run_pinto( add => @args );
 
         $ok ? $self->log("added $archive to $root ok")
             : $self->log_fatal("failed to add $archive to $root: $output");
@@ -193,7 +193,7 @@ sub _ask_for_password {
 
 #------------------------------------------------------------------------------
 
-sub RUN_PINTO {
+sub _run_pinto {
     my ($self, @args) = @_;
 
     local $ENV{PINTO_NO_COLOR} = 1;
