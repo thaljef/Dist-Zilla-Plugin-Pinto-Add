@@ -142,7 +142,7 @@ sub before_release {
 
         push @live_roots, $root;
     }
-    
+
     $self->log_fatal('none of your repositories are available') if not @live_roots;
     $self->_set_live_roots(\@live_roots);
 
@@ -165,7 +165,7 @@ sub release {
             $self->has_recurse  ? (-recurse  => $self->recurse)  : (),
             $self->has_author   ? (-author   => $self->author)   : (),
             $self->has_stack    ? (-stack    => $self->stack)    : (),
-            
+
             $archive,
         );
 
@@ -185,7 +185,7 @@ sub release {
 sub _ask_for_password {
     my ($self) = @_;
 
-    my $prompt = sprintf 'Pinto password for %s: ', $self->username; 
+    my $prompt = sprintf 'Pinto password for %s: ', $self->username;
     my $password = $self->zilla->chrome->prompt_str($prompt, { noecho => 1 });
 
     return $password;
