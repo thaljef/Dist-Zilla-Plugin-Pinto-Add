@@ -5,7 +5,7 @@ package Dist::Zilla::Plugin::Pinto::Add;
 #------------------------------------------------------------------------------
 
 use Moose;
-use MooseX::Types::Moose qw(Str ArrayRef Bool Undef);
+use MooseX::Types::Moose qw(Str ArrayRef Bool);
 
 use IPC::Run;
 use File::Which;
@@ -211,6 +211,7 @@ sub _run_pinto {
 
 sub _find_pinto_executable {
     my ($class) = @_;
+
     return File::Which::which('pinto');
 }
 
@@ -323,6 +324,11 @@ default within the repository.
 Specifies the username for server authentication.  If not specified, it
 defaults to the C<PINTO_USERNAME> environment variable, or else your current
 shell login.
+
+=item pinto_exe = PATH
+
+Specifies the full path to your C<pinto> executable.  If not specified, your
+C<PATH> will be searched.
 
 =back
 
