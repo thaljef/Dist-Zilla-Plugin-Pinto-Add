@@ -242,6 +242,7 @@ __END__
   author        = YOU                       ; optional. defaults to PINTO_AUTHOR_ID
   stack         = stack_name                ; optional. defaults to repository setting
   recurse       = 0                         ; optional. defaults to repository setting
+  pinto_exe     = /path/to/pinto            ; optional. defaults to searching PATH
   username      = you                       ; optional. defaults to PINTO_USERNAME
   password      = secret                    ; optional. will prompt if needed
   authenticate  = 1                         ; optional. defaults to 0
@@ -270,8 +271,8 @@ usual tools.
 =head1 CONFIGURATION
 
 The following configuration parameters can be set in the C<[Pinto::Add]>
-section of the F<dist.ini> file for your distribution.  Defaults for all
-paramters can be set via environment variables or via repository
+section of the F<dist.ini> file for your distribution.  Defaults for most
+paramters can be set via environment variables or via the repository
 configuration.
 
 =over 4
@@ -340,8 +341,8 @@ the remaining parameters (e.g. C<stack>, C<author>, C<authenticate>) will
 apply to all the repositories.
 
 However, the recommended way to release to multiple repositories is to have
-multiple C<[Pinto::Add]> blocks in your F<dist.ini> file.  This allows you to
-set attributes for each repository independently (at the expense of possibly
-having to duplicating some information).
+multiple C<[Pinto::Add / NAME]> blocks in your F<dist.ini> file.  This allows
+you to set attributes for each repository independently (at the expense of
+possibly having to duplicating some information).
 
 =cut
