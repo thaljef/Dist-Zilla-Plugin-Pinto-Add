@@ -1,5 +1,7 @@
 {{$NEXT}}
 
+0.086_01  2014-02-02 13:42:38 America/Los_Angeles
+
     - This plugin as been entirely re-written to use the pinto command
     rather than interfacing with the Pinto API directly.  Since the API
     is still in flux, this should make the plugin more resilient to
