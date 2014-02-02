@@ -9,6 +9,10 @@
     - The "pinto_exe" configuration option can be used to set the
     path to the pinto executable.  If not set, it searches your PATH.
 
+    - Nearly all configuration parameters are now optional.  Defaults
+    are based on environment variables or the repository configuration.
+    See the POD for details.
+
 0.086     2014-01-21 14:01:06 America/Los_Angeles
 
     [INCOMPATIBLE CHANGES]
