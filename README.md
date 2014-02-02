@@ -4,130 +4,113 @@ Dist::Zilla::Plugin::Pinto::Add - Ship your dist to a Pinto repository
 
 # VERSION
 
-version 0.086
+version 0.086\_01
 
 # SYNOPSIS
 
     # In your dist.ini
     [Pinto::Add]
-    root          = http://pinto.my-host      ; at lease one root is required
-    author        = YOU                       ; optional. defaults to username
-    stack         = stack_name                ; optional. defaults to undef
-    recurse       = 0                         ; optional. defaults to 1
-    authenticate  = 1                         ; optional. defaults to 0
-    username      = you                       ; optional. will prompt if needed
+    root          = http://pinto.example.com  ; optional. defaults to PINTO_REPOSITORY_ROOT
+    author        = YOU                       ; optional. defaults to PINTO_AUTHOR_ID
+    stack         = stack_name                ; optional. defaults to repository setting
+    recurse       = 0                         ; optional. defaults to repository setting
+    username      = you                       ; optional. defaults to PINTO_USERNAME
     password      = secret                    ; optional. will prompt if needed
+    authenticate  = 1                         ; optional. defaults to 0
 
     # Then run the release command
     dzil release
 
 # DESCRIPTION
 
-Dist::Zilla::Plugin::Pinto::Add is a release-stage plugin that
-will add your distribution to a local or remote [Pinto](https://metacpan.org/pod/Pinto) repository.
+This is a release-stage plugin for [Dist::Zilla](https://metacpan.org/pod/Dist::Zilla) that will ship your
+distribution releases to a local or remote [Pinto](https://metacpan.org/pod/Pinto) repository.
 
-__IMPORTANT:__ You will need to install [Pinto](https://metacpan.org/pod/Pinto) to make this plugin
-work.  It ships separately so you can decide how you want to install
-it.  I recommend installing Pinto as a stand-alone application as
-described in [Pinto::Manual::Installing](https://metacpan.org/pod/Pinto::Manual::Installing) and then setting the
-`PINTO_HOME` environment variable.  Or you can install Pinto from
-CPAN using the usual tools.  Either way, this plugin should just do
-the right thing to load the necessary modules.
+Before building the release, all repositories are checked for connectivity. If
+a repository is not responding you will be prompted to skip it or abort the
+entire release.  If none of the repositories are responding, then the release
+will be aborted.  Any errors encountered while shipping to the remaining
+repositories will also cause the rest of the release to abort.
 
-Before releasing, [Dist::Zilla::Plugin::Pinto::Add](https://metacpan.org/pod/Dist::Zilla::Plugin::Pinto::Add) will check if the
-repository is responding.  If not, you'll be prompted whether to abort
-the rest of the release.
-
-If the `authenticate` configuration option is enabled, and either the
-`username` or `password` options are not configured, you will be
-prompted you to enter your username and password during the
-BeforeRelease phase.  Entering a blank username or password will abort
-the release.
+__IMPORTANT:__ You need to install [Pinto](https://metacpan.org/pod/Pinto) to make this plugin work.  It ships
+separately so you can decide how you want to install it.  Peronally, I
+recommend installing Pinto as a stand-alone application as described in
+[Pinto::Manual::Installing](https://metacpan.org/pod/Pinto::Manual::Installing) and then setting the `PINTO_HOME` environment
+variable accordingly.  But you can also just install Pinto from CPAN using the
+usual tools.
 
 # CONFIGURATION
 
-The following parameters can be set in the `dist.ini` file for your
-distribution:
+The following configuration parameters can be set in the `[Pinto::Add]`
+section of the `dist.ini` file for your distribution.  Defaults for all
+paramters can be set via environment variables or via repository
+configuration.
 
 - root = REPOSITORY
 
-    This identifies the root of the Pinto repository you want to release
-    to.  If `REPOSITORY` looks like a remote URL (i.e. it starts with
-    "http://") then your distribution will be shipped with
-    [Pinto::Remote](https://metacpan.org/pod/Pinto::Remote).  Otherwise, the `REPOSITORY` is assumed to be a
-    path to a local repository directory and your distribution will be
-    shipped with [Pinto](https://metacpan.org/pod/Pinto).
-
-    At least one `root` is required.  You can release to multiple
-    repositories by specifying the `root` attribute multiple times.  If
-    any of the repositories are not responding, we will still try to
-    release to the rest of them (unless you decide to abort the release
-    altogether).  If none of the repositories are responding, then the
-    entire release will be aborted.  Any errors returned by one of the
-    repositories will also cause the rest of the release to be aborted.
-
-- author = NAME
-
-    This specifies your identity as a module author.  It must be
-    alphanumeric characters (no spaces) and will be forced to UPPERCASE.
-    If you do not specify one, it defaults to either your PAUSE ID (if you
-    have one configured in `~/.pause`) or your current username.
-
-- stack = NAME
-
-    This specifies which stack in the repository to put the released
-    packages into.  Defaults to `undef`, which means to use whatever
-    stack is currently defined as the default by the repository.
-
-- recurse = 0|1
-
-    If true, Pinto will recursively pull all the distributions required to
-    satisfy the prerequisites for the distribution you are adding.  If
-    false, Pinto will add the distribution only.  If not set at all, the
-    default recursive behavior is determined by the repository
-    configuration.
+    Specifies the root of the Pinto repository you want to ship to.  It can be
+    either a path to a local repository or a URI where [pintod](https://metacpan.org/pod/pintod) is listening. If
+    not specified, it defaults to the `PINTO_REPOSITORY_ROOT` environment
+    variable.  You can ship to multiple repositories by specifying the `root`
+    parameter multiple times.  See also ["USING MULTIPLE REPOSITORIES"](#using-multiple-repositories).
 
 - authenticate = 0|1
 
-    Indicates that authentication credentials are required for
-    communicating with the server (these will be prompted for, if not
-    provided in the `dist.ini` file as described below).  Defaults is
-    false.
+    Indicates that authentication is required for communicating with the
+    repository.  If true, you will be prompted for a `password` unless it is
+    provided as described below.  Default is false.
+
+- author = NAME
+
+    Specifies your identity as a module author.  It must be two or more
+    alphanumeric characters and it will be forced to UPPERCASE. If not specified,
+    it defaults to either the `PINTO_AUTHOR_ID` environment variable, or else
+    your PAUSE ID (if you have one configured in `~/.pause`), or else the
+    `username` parameter.
+
+- password = PASSWORD
+
+    Specifies the password to use for authentication.  If not specified, it
+    defaults to the `PINTO_PASSWORD` environment variable, or else you will be
+    prompted to enter a password.  If your repository does require authentication,
+    then you must also set the `authenticate` parameter to 1.  For security
+    reasons, I do not recommend putting your password in the `dist.ini` file.
+
+- recurse = 0|1
+
+    If true, Pinto will recursively pull all the distributions required to satisfy
+    the prerequisites for the distribution you are adding.  If false, Pinto will
+    add the distribution only.  If not specified, the default behavior is
+    determined by the repository configuration.
+
+- stack = NAME
+
+    Specifies which stack in the repository to put the released distribution into.
+    If not specified, it defaults to the stack that is currently marked as the
+    default within the repository.
 
 - username = NAME
 
-    Specifies the username to use for server authentication.
+    Specifies the username for server authentication.  If not specified, it
+    defaults to the `PINTO_USERNAME` environment variable, or else your current
+    shell login.
 
-- password = PASS
+- pinto\_exe = PATH
 
-    Specifies the password to use for server authentication.
+    Specifies the full path to your `pinto` executable.  If not specified, your
+    `PATH` will be searched.
 
-# ENVIRONMENT VARIABLES
+# USING MULTIPLE REPOSITORIES
 
-The following environment variables can be used to influence the
-default values used for some of the parameters above.
+You can ship your distribution to multiple repositories by specifying multiple
+the `root` paramter multiple times in your `dist.ini` file.  In that case,
+the remaining parameters (e.g. `stack`, `author`, `authenticate`) will
+apply to all the repositories.
 
-- `PINTO_AUTHOR_ID`
-
-    Sets the default author identity, if the `author` parameter is
-    not set.
-
-- `PINTO_USERNAME`
-
-    Sets the default username, if the `username` parameter is not set.
-
-# RELEASING TO MULTIPLE REPOSITORIES
-
-You can release your distribution to multiple repositories by
-specifying multiple values for the `root` attribute in your
-`dist.ini` file.  In that case, the remaining attributes
-(e.g. `stack`, `author`, `authenticate`) will apply to all the
-repositories.
-
-However, the recommended way to release to multiple repositories is to
-have multiple `[Pinto::Add]` blocks in your `dist.ini` file.  This
-allows you to set attributes for each repository independently (at the
-expense of possibly having to duplicating some information).
+However, the recommended way to release to multiple repositories is to have
+multiple `[Pinto::Add]` blocks in your `dist.ini` file.  This allows you to
+set attributes for each repository independently (at the expense of possibly
+having to duplicating some information).
 
 # SUPPORT
 
