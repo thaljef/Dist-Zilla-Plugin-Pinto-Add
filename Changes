@@ -1,14 +1,23 @@
 {{$NEXT}}
 
+    - This plugin as been entirely re-written to use the pinto command
+    rather than interfacing with the Pinto API directly.  Since the API
+    is still in flux, this should make the plugin more resilient to
+    changes.  But the behavior of the plugin itself is unchanged.
+    However, it now requires Pinto 0.098 or later.
+
+    - The "pinto_exe" configuration option can be used to set the
+    path to the pinto executable.  If not set, it searches your PATH.
+
 0.086     2014-01-21 14:01:06 America/Los_Angeles
 
     [INCOMPATIBLE CHANGES]
 
     - The "no_recurse" configuration option has been changed to
     "recurse" which can be either true or false.  If not set, the
-    default recursive behavior is determined by the repository 
-    configuration.  If you were using the the "no_recurse" option 
-    before, you'll need to replace it with "recurse = 0" in your 
+    default recursive behavior is determined by the repository
+    configuration.  If you were using the the "no_recurse" option
+    before, you'll need to replace it with "recurse = 0" in your
     dist.ini file.
 
    [BUG FIXES]
