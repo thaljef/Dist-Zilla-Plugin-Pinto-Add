@@ -73,7 +73,7 @@ has password => (
 has pinto_exe => (
     is        => 'ro',
     isa       => Str,
-    default   => sub { which('pinto') or shift->log_fatal('pinto does not seem to be installed') },
+    default   => \&_find_pinto_executable,
     lazy      => 1,
 );
 
@@ -85,6 +85,7 @@ has root => (
     lazy      => 1,
 );
 
+
 has live_roots => (
     is        => 'ro',
     isa       => ArrayRef[Str],
@@ -95,23 +96,21 @@ has live_roots => (
 
 #------------------------------------------------------------------------------
 
-our $MINIMUM_PINTO_VERSION = version->parse('0.091');
+our $MINIMUM_PINTO_VERSION = version->parse('0.098');
 
 #------------------------------------------------------------------------------
 
 sub BUILD {
     my ($self) = @_;
 
-    my ($ok, $output) = $self->_run_pinto( -version );
-    my ($pinto_version) = ($output =~ m/version ([\d\._v]+) /);
+    my $pinto_exe = $self->pinto_exe
+        or $self->log_fatal("unable to find pinto in your PATH");
 
-    $self->log_fatal("unable to parse pinto version from: $output")
-        if not $pinto_version;
+    my $pinto_version = $self->_installed_pinto_version
+        or $self->log_fatal("unable to determine the version of pinto at $pinto_exe");
 
-    $pinto_version = version->parse($pinto_version);
-
-    $self->log_fatal("need version $MINIMUM_PINTO_VERSION of pinto.  You only have $pinto_version")
-        if $pinto_version < $MINIMUM_PINTO_VERSION;
+    $pinto_version >= $MINIMUM_PINTO_VERSION
+        or $self->log_fatal("need version $MINIMUM_PINTO_VERSION of pinto.  You only have $pinto_version");
 
     return $self;
 }
@@ -206,6 +205,23 @@ sub _run_pinto {
     my $timeout = IPC::Run::timeout(300);
     my $ok = IPC::Run::run(\@cmd, \$input, \$output, \$output, $timeout);
     return ($ok, $output);
+}
+
+#------------------------------------------------------------------------------
+
+sub _find_pinto_executable {
+    my ($class) = @_;
+    return File::Which::which('pinto');
+}
+
+#------------------------------------------------------------------------------
+
+sub _installed_pinto_version {
+    my ($class) = @_;
+
+    my $pinto_exe = $class->_find_pinto_executable;
+    my ($pinto_version) = (qx($pinto_exe --version) =~ m/version ([\d\._v]+) /);
+    return version->parse($pinto_version);
 }
 
 #------------------------------------------------------------------------------
