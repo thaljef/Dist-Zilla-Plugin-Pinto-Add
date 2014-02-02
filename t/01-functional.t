@@ -60,7 +60,7 @@ sub build_repo {
 
 sub run_cmd {
     my @cmd = @_;
-    
+
     s/^-/--/ for @cmd;
 
     my $input = my $output = '';
@@ -86,7 +86,7 @@ subtest "Basic release" => sub {
 
     my $root = build_repo;
     my $tzil = build_tzil( [$plugin => {root => $root}] );
-    
+
     lives_ok { $tzil->release };
 
     my $log = join "\n", @{ $tzil->log_messages };
@@ -117,7 +117,7 @@ subtest "No live repos" => sub {
     my $tzil = build_tzil( [$plugin => {root  => $root}] );
     $tzil->chrome->set_response_for('Abort release? ', 'N');
 
-    throws_ok{ $tzil->release } 
+    throws_ok{ $tzil->release }
         my $error = qr/none of your repositories are available/;
 
     my $log = join "\n", @{ $tzil->log_messages };
@@ -171,7 +171,7 @@ subtest "Prompt for password" => sub {
 
     $tzil->chrome->set_response_for("Pinto password for $user: ", $pass);
     lives_ok{ $tzil->release };
-    
+
     my $p = $tzil->plugin_named($plugin);
     is $p->password, $pass;
 };
