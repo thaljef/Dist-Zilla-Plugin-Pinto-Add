@@ -135,7 +135,7 @@ subtest "Params from ENV" => sub {
     my $tzil = build_tzil( [$plugin => {}] );
     my $p = $tzil->plugin_named($plugin);
 
-    is $p->root->[0], $ENV{PINTO_REPOSITORY_ROOT};
+    is $p->roots->[0], $ENV{PINTO_REPOSITORY_ROOT};
     is $p->username,  $ENV{PINTO_USERNAME};
 };
 
@@ -150,7 +150,7 @@ subtest "Params from dist.ini" => sub {
                                          recurse  => 0 }] );
     my $p = $tzil->plugin_named($plugin);
 
-    is $p->root->[0], 'myrepo';
+    is $p->roots->[0], 'myrepo';
     is $p->author,    'ME';
     is $p->username,  'user';
     is $p->password,  'secret';
@@ -223,7 +223,7 @@ subtest "Repo not responding -- partial release" => sub {
     my ($root1, $root2) = (build_repo, '/dev/null');
     my $roots           = [ $root1, $root2 ];
 
-    my $tzil = build_tzil( [$plugin => { root   => $roots }] );
+    my $tzil = build_tzil( [$plugin => { root => $roots }] );
     $tzil->chrome->set_response_for('Abort release? ', 'N');
 
     lives_ok { $tzil->release };

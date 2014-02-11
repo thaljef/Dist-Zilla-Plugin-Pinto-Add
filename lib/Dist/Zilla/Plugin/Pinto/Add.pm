@@ -22,7 +22,8 @@ with qw( Dist::Zilla::Role::Releaser Dist::Zilla::Role::BeforeRelease );
 
 #------------------------------------------------------------------------------
 
-sub mvp_multivalue_args { return qw(root) }
+sub mvp_multivalue_args { return qw(roots) }
+sub mvp_aliases { return { root => 'roots' } }
 
 #------------------------------------------------------------------------------
 
@@ -78,7 +79,7 @@ has pinto_exe => (
 );
 
 
-has root => (
+has roots => (
     is        => 'ro',
     isa       => ArrayRef[Str],
     default   => sub { [ $ENV{PINTO_REPOSITORY_ROOT} || shift->log_fatal('must specify a root') ] },
@@ -121,7 +122,7 @@ sub before_release {
     my ($self) = @_;
 
     my @live_roots;
-    for my $root ( @{ $self->root } ) {
+    for my $root ( @{ $self->roots } ) {
 
         my @args = (
             -root => $root,
