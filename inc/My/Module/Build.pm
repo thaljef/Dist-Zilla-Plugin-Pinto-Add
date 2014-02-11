@@ -31,11 +31,13 @@ sub new {
 #######################################################################
 $reason
 
-I recommend installing Pinto as a stand-alone application as described
-in Pinto::Manual::Installing.  This will ensure you get precisely the
-right versions of all the dependencies, and it won't alter the existing
-environment.  So you might want to do that first, then set PINTO_HOME
-and come back to install this module afterwards.
+I recommend installing Pinto as a stand-alone application as shown here:
+
+    https://metacpan.org/pod/Pinto::Manual::Installing
+
+This will ensure you get precisely the right versions of all the modules
+and it won't alter the existing environment.  So you might want to go do
+that first, set PINTO_HOME, and then come back to install this module.
 
 Or, I can just install Pinto directly into PERL5LIB along with all your
 other Perl modules.  In this case, I can't guarantee that you'll have
