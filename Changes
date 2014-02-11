@@ -1,7 +1,5 @@
 {{$NEXT}}
 
-0.086_01  2014-02-02 13:42:38 America/Los_Angeles
-
     - This plugin as been entirely re-written to use the pinto command
     rather than interfacing with the Pinto API directly.  Since the API
     is still in flux, this should make the plugin more resilient to
@@ -14,6 +12,10 @@
     - Nearly all configuration parameters are now optional.  Defaults
     are based on environment variables or the repository configuration.
     See the POD for details.
+
+0.086_01  2014-02-02 13:42:38 America/Los_Angeles
+
+    - Changes consolidated above under version 0.087
 
 0.086     2014-01-21 14:01:06 America/Los_Angeles
 
