@@ -236,6 +236,50 @@ subtest "Repo not responding -- partial release" => sub {
 
 #-----------------------------------------------------------------------------
 
+{
+    my @pinto_args;
+    no warnings qw(once redefine);
+    local *Dist::Zilla::Plugin::Pinto::Add::_run_pinto = sub {
+        @pinto_args = @_;
+        return (1, '');
+    };
+
+    subtest "Recurse param of 0 handled correctly" => sub {
+
+        my $root = build_repo;
+        my $tzil = build_tzil( [$plugin => {root => $root,
+                                            recurse => 0,}] );
+
+        lives_ok { $tzil->release };
+
+        is(grep(/^-no-recurse$/, @pinto_args), 1,
+           'recurse => 0 handled correctly');
+    };
+    subtest "Recurse param of 1 handled correctly" => sub {
+
+        my $root = build_repo;
+        my $tzil = build_tzil( [$plugin => {root => $root,
+                                            recurse => 1,}] );
+
+        lives_ok { $tzil->release };
+
+        is(grep(/^-recurse$/, @pinto_args), 1,
+           'recurse => 1 handled correctly');
+    };
+    subtest "Recurse param unspecified handled correctly" => sub {
+
+        my $root = build_repo;
+        my $tzil = build_tzil( [$plugin => {root => $root}] );
+
+        lives_ok { $tzil->release };
+
+        is(grep(/recurse/, @pinto_args), 0,
+           'no recurse param handled correctly');
+    };
+}
+
+#-----------------------------------------------------------------------------
+
 done_testing;
 
 #-----------------------------------------------------------------------------
