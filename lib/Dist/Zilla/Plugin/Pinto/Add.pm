@@ -156,26 +156,8 @@ sub release {
 
     for my $root ( @{ $self->live_roots } ) {
 
-        my @recurse_arg;
-        if ( $self->has_recurse ) {
-            @recurse_arg = ($self->recurse ? qw(-recurse) : qw(-no-recurse));
-        }
-
-        my @args = (
-            -root     => $root,
-            -message  => "Added " . $archive->basename,
-
-            $self->authenticate ? (-username => $self->username) : (),
-            $self->authenticate ? (-password => $self->password) : (),
-            @recurse_arg,
-            $self->has_author   ? (-author   => $self->author)   : (),
-            $self->has_stack    ? (-stack    => $self->stack)    : (),
-
-            $archive,
-        );
-
-
         $self->log("adding $archive to repository at $root");
+        my @args = $self->_generate_pinto_args($root, $archive);
         my ($ok, $output) = $self->_run_pinto( add => @args );
 
         $ok ? $self->log("added $archive to $root ok")
@@ -183,6 +165,28 @@ sub release {
     }
 
     return 1;
+}
+
+#------------------------------------------------------------------------------
+
+sub _generate_pinto_args {
+    my ($self, $root, $archive) = @_;
+
+    my @recurse_opt = $self->has_recurse
+        ? ($self->recurse ? qw(-recurse) : qw(-no-recurse))  : ();
+
+    return (
+        -root     => $root,
+        -message  => "Added " . $archive->basename,
+
+        $self->authenticate ? (-username => $self->username) : (),
+        $self->authenticate ? (-password => $self->password) : (),
+        $self->has_stack    ? (-stack    => $self->stack)    : (),
+        @recurse_opt,
+
+        $archive,
+    );
+
 }
 
 #------------------------------------------------------------------------------
