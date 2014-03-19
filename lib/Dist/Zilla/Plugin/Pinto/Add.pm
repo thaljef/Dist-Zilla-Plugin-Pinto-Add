@@ -156,13 +156,18 @@ sub release {
 
     for my $root ( @{ $self->live_roots } ) {
 
+        my @recurse_arg;
+        if ( $self->has_recurse ) {
+            @recurse_arg = ($self->recurse ? qw(-recurse) : qw(-no-recurse));
+        }
+
         my @args = (
             -root     => $root,
             -message  => "Added " . $archive->basename,
 
             $self->authenticate ? (-username => $self->username) : (),
             $self->authenticate ? (-password => $self->password) : (),
-            $self->has_recurse  ? (-recurse  => $self->recurse)  : (),
+            @recurse_arg,
             $self->has_author   ? (-author   => $self->author)   : (),
             $self->has_stack    ? (-stack    => $self->stack)    : (),
 
