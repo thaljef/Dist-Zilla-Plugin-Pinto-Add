@@ -8,6 +8,7 @@ use Test::DZil;
 use Test::Exception;
 
 use IPC::Run;
+use File::Path;
 use File::Which;
 use File::Temp;
 use Dist::Zilla::Tester;
@@ -236,7 +237,8 @@ subtest "Repo not responding -- partial release" => sub {
 
 #-----------------------------------------------------------------------------
 
-{
+subtest "Handling of the recurse option" => sub {
+
     my @pinto_args;
     no warnings qw(once redefine);
     local *Dist::Zilla::Plugin::Pinto::Add::_run_pinto = sub {
@@ -276,7 +278,7 @@ subtest "Repo not responding -- partial release" => sub {
         is(grep(/recurse/, @pinto_args), 0,
            'no recurse param handled correctly');
     };
-}
+};
 
 #-----------------------------------------------------------------------------
 
