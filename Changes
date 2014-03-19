@@ -1,5 +1,10 @@
 {{$NEXT}}
 
+    [BUG FIXES]
+
+    - Fixed handling of the "recurse" option.  Code and tests were
+    ontributed by @hartzell. Fixes GH #11
+
 0.087     2014-02-10 21:38:05 America/Los_Angeles
 
     - This plugin as been entirely re-written to use the pinto command
