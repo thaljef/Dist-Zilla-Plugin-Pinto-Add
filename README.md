@@ -34,7 +34,7 @@ will be aborted.  Any errors encountered while shipping to the remaining
 repositories will also cause the rest of the release to abort.
 
 __IMPORTANT:__ You need to install [Pinto](https://metacpan.org/pod/Pinto) to make this plugin work.  It ships
-separately so you can decide how you want to install it.  Peronally, I
+separately so you can decide how you want to install it.  Personally, I
 recommend installing Pinto as a stand-alone application as described in
 [Pinto::Manual::Installing](https://metacpan.org/pod/Pinto::Manual::Installing) and then setting the `PINTO_HOME` environment
 variable accordingly.  But you can also just install Pinto from CPAN using the
@@ -44,7 +44,7 @@ usual tools.
 
 The following configuration parameters can be set in the `[Pinto::Add]`
 section of the `dist.ini` file for your distribution.  Defaults for most
-paramters can be set via environment variables or via the repository
+parameters can be set via environment variables or via the repository
 configuration.
 
 - root = REPOSITORY
@@ -104,7 +104,7 @@ configuration.
 # USING MULTIPLE REPOSITORIES
 
 You can ship your distribution to multiple repositories by specifying multiple
-the `root` paramter multiple times in your `dist.ini` file.  In that case,
+the `root` parameter multiple times in your `dist.ini` file.  In that case,
 the remaining parameters (e.g. `stack`, `author`, `authenticate`) will
 apply to all the repositories.
 
