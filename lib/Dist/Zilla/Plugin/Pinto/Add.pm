@@ -272,7 +272,7 @@ will be aborted.  Any errors encountered while shipping to the remaining
 repositories will also cause the rest of the release to abort.
 
 B<IMPORTANT:> You need to install L<Pinto> to make this plugin work.  It ships
-separately so you can decide how you want to install it.  Peronally, I
+separately so you can decide how you want to install it.  Personally, I
 recommend installing Pinto as a stand-alone application as described in
 L<Pinto::Manual::Installing> and then setting the C<PINTO_HOME> environment
 variable accordingly.  But you can also just install Pinto from CPAN using the
@@ -282,7 +282,7 @@ usual tools.
 
 The following configuration parameters can be set in the C<[Pinto::Add]>
 section of the F<dist.ini> file for your distribution.  Defaults for most
-paramters can be set via environment variables or via the repository
+parameters can be set via environment variables or via the repository
 configuration.
 
 =over 4
@@ -346,7 +346,7 @@ C<PATH> will be searched.
 =head1 USING MULTIPLE REPOSITORIES
 
 You can ship your distribution to multiple repositories by specifying multiple
-the C<root> paramter multiple times in your F<dist.ini> file.  In that case,
+the C<root> parameter multiple times in your F<dist.ini> file.  In that case,
 the remaining parameters (e.g. C<stack>, C<author>, C<authenticate>) will
 apply to all the repositories.
 
