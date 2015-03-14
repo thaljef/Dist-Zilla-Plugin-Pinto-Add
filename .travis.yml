@@ -1,0 +1,20 @@
+language: perl
+
+perl:
+    - "5.20"
+    - "5.18"
+    - "5.16"
+    - "5.14"
+    - "5.12"
+    - "5.10"
+
+before_install:
+    - curl -L http://getpinto.stratopan.com | bash
+    - source ~/opt/local/pinto/etc/bashrc
+
+install:
+    - dzil authordeps --missing | cpanm --no-skip-satisfied
+    - dzil listdeps --author --missing | cpanm --no-skip-satisfied
+
+script:
+    - dzil test --author --release
