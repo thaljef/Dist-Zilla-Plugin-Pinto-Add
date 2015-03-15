@@ -1,5 +1,9 @@
 {{$NEXT}}
 
+    - Numerous documentation patches and Travis configuration were
+    generously provided by Paul Cochrane as part of the CPAN Pull
+    Request Challenge.
+
 0.088     2014-03-18 20:58:57 America/Los_Angeles
 
     [BUG FIXES]
