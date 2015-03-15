@@ -33,7 +33,7 @@ entire release.  If none of the repositories are responding, then the release
 will be aborted.  Any errors encountered while shipping to the remaining
 repositories will also cause the rest of the release to abort.
 
-__IMPORTANT:__ You need to install [Pinto](https://metacpan.org/pod/Pinto) to make this plugin work.  It ships
+**IMPORTANT:** You need to install [Pinto](https://metacpan.org/pod/Pinto) to make this plugin work.  It ships
 separately so you can decide how you want to install it.  Personally, I
 recommend installing Pinto as a stand-alone application as described in
 [Pinto::Manual::Installing](https://metacpan.org/pod/Pinto::Manual::Installing) and then setting the `PINTO_HOME` environment
@@ -142,7 +142,7 @@ in addition to those websites please use your favorite search engine to discover
 
     The CPANTS is a website that analyzes the Kwalitee ( code metrics ) of a distribution.
 
-    [http://cpants.perl.org/dist/overview/Dist-Zilla-Plugin-Pinto-Add](http://cpants.perl.org/dist/overview/Dist-Zilla-Plugin-Pinto-Add)
+    [http://cpants.cpanauthors.org/dist/Dist-Zilla-Plugin-Pinto-Add](http://cpants.cpanauthors.org/dist/Dist-Zilla-Plugin-Pinto-Add)
 
 - CPAN Testers
 
@@ -193,7 +193,7 @@ Jeffrey Ryan Thalhammer <jeff@stratopan.com>
 
 # COPYRIGHT AND LICENSE
 
-This software is copyright (c) 2013 by Jeffrey Ryan Thalhammer.
+This software is copyright (c) 2015 by Jeffrey Ryan Thalhammer.
 
 This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.
