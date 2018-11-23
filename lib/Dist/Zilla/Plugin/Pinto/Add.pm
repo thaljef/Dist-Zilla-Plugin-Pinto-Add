@@ -182,6 +182,7 @@ sub _generate_pinto_args {
         $self->authenticate ? (-username => $self->username) : (),
         $self->authenticate ? (-password => $self->password) : (),
         $self->has_stack    ? (-stack    => $self->stack)    : (),
+        $self->has_author   ? (-author   => $self->author)   : (),
         @recurse_opt,
 
         $archive,
